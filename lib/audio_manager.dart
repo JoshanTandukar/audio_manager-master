@@ -22,7 +22,6 @@ class AudioManager {
   AudioManager._() {
     _channel = const MethodChannel('audio_manager')
       ..setMethodCallHandler(_handler);
-    getCurrentVolume();
   }
 
   /// 是否资源加载中
@@ -384,11 +383,5 @@ class AudioManager {
     final result = await _channel
         .invokeMethod("setVolume", {"value": volume, "showVolume": showVolume});
     return result;
-  }
-
-  /// get current volume
-  Future<double> getCurrentVolume() async {
-    _volume = await _channel.invokeMethod("currentVolume");
-    return _volume;
   }
 }
