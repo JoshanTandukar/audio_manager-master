@@ -142,72 +142,7 @@ public class MediaPlayerHelper {
         delaySecondTime = time;
         return instance;
     }
-
-    private MediaPlayerService service;
-
-    /**
-     * 绑定服务
-     *
-     * @return 实例
-     */
-    private MediaPlayerHelper bindService() {
-        MediaPlayerService.bindService((events, args) -> {
-            switch (events) {
-                case binder:
-                    service = (MediaPlayerService) args[0];
-                    service.updateNotification(isPlaying(), mediaInfo.title, mediaInfo.desc);
-                    if (mediaInfo.cover != null) {
-                        updateCover(mediaInfo.cover);
-                    }
-                    break;
-                case playOrPause:
-                    playOrPause();
-                    break;
-                case next:
-                    onStatusCallbackNext(CallBackState.next);
-                    break;
-                case previous:
-                    onStatusCallbackNext(CallBackState.previous);
-                    break;
-                case stop:
-                    release();
-                    break;
-            }
-        });
-
-        keepAlive();
-        return instance;
-    }
-
-    /**
-     * 更新锁屏信息 必须在 bindService 之后调用
-     */
-    MediaPlayerHelper updateLrc(String desc) {
-        if (service == null) return instance;
-        service.updateNotification(isPlaying(), mediaInfo.title, desc);
-        return instance;
-    }
-
-    MediaPlayerHelper updateCover(String url) {
-        if (service == null) return instance;
-        if (url.contains("http")) {
-            new Thread(() -> {
-                Bitmap bitmap = getBitmapFromUrl(url);
-                service.updateCover(bitmap);
-            }).start();
-            return instance;
-        }
-        try {
-            AssetManager am = context.getAssets();
-            InputStream inputStream = am.open(url);
-            service.updateCover(BitmapFactory.decodeStream(inputStream));
-
-        } catch (IOException e) {
-            onStatusCallbackNext(CallBackState.error, e.toString());
-        }
-        return instance;
-    }
-
+    
     /**
      * 播放音视频
      */
@@ -223,9 +158,7 @@ public class MediaPlayerHelper {
         uiHolder.player = new MediaPlayer();
         keepAlive();
         initPlayerListener();
-
-        if (!mediaInfo.isVideo) bindService();
-
+        
         if (mediaInfo.isAsset) {
 //            if (!checkAvalable(mediaInfo.url)) {
 //                onStatusCallbackNext(CallBackState.FORMAT_NOT_SUPPORT, mediaInfo.url);
@@ -341,9 +274,6 @@ public class MediaPlayerHelper {
         if (isPlaying()) return;
         uiHolder.player.start();
         onStatusCallbackNext(CallBackState.playOrPause, isPlaying());
-
-        if (service != null)
-            service.updateNotification(isPlaying(), mediaInfo.title, null);
     }
 
     void pause() {
@@ -351,9 +281,6 @@ public class MediaPlayerHelper {
         if (!isPlaying()) return;
         uiHolder.player.pause();
         onStatusCallbackNext(CallBackState.playOrPause, isPlaying());
-
-        if (service != null)
-            service.updateNotification(isPlaying(), mediaInfo.title, null);
     }
 
     void playOrPause() {
@@ -364,9 +291,6 @@ public class MediaPlayerHelper {
             uiHolder.player.start();
         }
         onStatusCallbackNext(CallBackState.playOrPause, isPlaying());
-
-        if (service != null)
-            service.updateNotification(isPlaying(), mediaInfo.title, null);
     }
 
     private boolean canPlay() {
@@ -418,8 +342,6 @@ public class MediaPlayerHelper {
      */
     public void release() {
         stop();
-        MediaPlayerService.unBind(context);
-
         if (wifiLock != null && wifiLock.isHeld())
             wifiLock.release();
     }
@@ -493,7 +415,6 @@ public class MediaPlayerHelper {
         }
         this.context = context;
         this.uiHolder = new Holder();
-        MediaPlayerService.registerReceiver(context);
 //        uiHolder.player = new MediaPlayer();
 //        keepAlive();
 //        initPlayerListener();

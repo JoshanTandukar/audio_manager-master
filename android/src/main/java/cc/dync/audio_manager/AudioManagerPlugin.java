@@ -201,9 +201,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler, Vol
             case "release":
                 helper.release();
                 break;
-            case "updateLrc":
-                helper.updateLrc(call.argument("lrc"));
-                break;
             case "seekTo":
                 try {
                     int position = Integer.parseInt(call.argument("position").toString());

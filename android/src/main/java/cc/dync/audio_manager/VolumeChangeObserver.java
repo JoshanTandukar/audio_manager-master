@@ -29,11 +29,11 @@ public class VolumeChangeObserver {
 
     private VolumeChangeListener mVolumeChangeListener;
     private VolumeBroadcastReceiver mVolumeBroadcastReceiver;
-    private Context mContext;
-    private AudioManager mAudioManager;
+    private final Context mContext;
+    private final AudioManager mAudioManager;
     private boolean mRegistered = false;
     // 最大音量
-    private int mMaxVolume;
+    private final int mMaxVolume;
 
     public VolumeChangeObserver(Context context) {
         mContext = context;
@@ -142,10 +142,6 @@ public class VolumeChangeObserver {
                         double volume = observer.getCurrentMusicVolume();
                         if (volume >= 0) {
                             listener.onVolumeChanged(volume);
-                        }
-
-                        if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "volume=" + volume);
                         }
                     }
                 }
