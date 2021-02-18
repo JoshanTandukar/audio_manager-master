@@ -68,7 +68,7 @@ class AudioManager {
 
   /// Play mode [sequence, shuffle, single], default `sequence`
   PlayMode get playMode => _playMode;
-  PlayMode _playMode = PlayMode.sequence;
+  PlayMode _playMode = PlayMode.single;
 
   /// Whether to internally handle [next] and [previous] events. default true
   bool intercepter = true;
