@@ -7,7 +7,6 @@ import 'audio_manager.dart';
 
 class WrappedPlayer {
   double pausedAt = 0;
-  double currentVolume = 1;
   double currentRate = 1;
   PlayMode playMode = PlayMode.sequence;
   String currentUrl = "";
@@ -25,11 +24,6 @@ class WrappedPlayer {
     }
   }
 
-  void setVolume(double volume) {
-    currentVolume = volume;
-    player?.volume = volume;
-  }
-
   void setRate(double rate) {
     currentRate = rate;
     player?.playbackRate = rate;
@@ -41,7 +35,6 @@ class WrappedPlayer {
     }
     player = AudioElement(currentUrl);
     player?.loop = playMode == PlayMode.single;
-    player?.volume = currentVolume;
     player?.playbackRate = currentRate;
   }
 
@@ -159,12 +152,6 @@ class AudioManagerPlugin {
         double rate = call.arguments['rate'] ?? 1.0;
         player.setRate(rate);
         return 1;
-      case "setVolume":
-        double volume = call.arguments['volume'] ?? 1.0;
-        player.setVolume(volume);
-        break;
-      case "currentVolume":
-        return player.currentVolume;
       case 'updateLrc':
       default:
         throw PlatformException(

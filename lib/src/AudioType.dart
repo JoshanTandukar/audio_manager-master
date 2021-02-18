@@ -24,7 +24,6 @@ enum AudioManagerEvents {
   stop,
 
   /// ⚠️ IOS simulator is invalid, please use real machine
-  volumeChange,
   unknow
 }
 typedef void Events(AudioManagerEvents events, args);

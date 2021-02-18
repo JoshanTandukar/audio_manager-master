@@ -37,9 +37,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
                 channel.invokeMethod("ended", arguments: nil)
             case .stop:
                 channel.invokeMethod("stop", arguments: nil)
-            case .volumeChange(let value):
-                channel.invokeMethod("volumeChange", arguments: value)
-            }
         }
     }
     
@@ -110,15 +107,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
                 return
             }
             AudioManager.default.rate = Float(rate)
-        case "setVolume":
-            guard let value = arguments["value"] as? Double else {
-                result("参数错误")
-                return
-            }
-            let showVolume = arguments["showVolume"] as? Bool ?? false
-            AudioManager.default.setVolume(Float(value), show: showVolume)
-        case "currentVolume":
-            result(AudioManager.default.currentVolume)
         default:
             result(FlutterMethodNotImplemented)
         }

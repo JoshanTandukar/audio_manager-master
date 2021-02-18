@@ -21,7 +21,6 @@ open class AudioManager: NSObject {
     private override init() {
         super.init()
         setRemoteControl()
-        NotificationCenter.default.addObserver(self, selector: #selector(volumeChange(n:)), name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"), object: nil)
     }
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -89,27 +88,6 @@ open class AudioManager: NSObject {
     
     fileprivate let session = AVAudioSession.sharedInstance()
     fileprivate var interrupterStatus = false
-    
-    fileprivate lazy var volumeView: MPVolumeView = {
-        let volumeView = MPVolumeView()
-        volumeView.frame = CGRect(x: -100, y: -100, width: 40, height: 40)
-        return volumeView
-    }()
-    
-    /// 是否显示音量视图
-    open var showVolumeView: Bool = false {
-        didSet {
-            if showVolumeView {
-                volumeView.removeFromSuperview()
-            }else {
-                UIApplication.shared.keyWindow?.addSubview(volumeView)
-            }
-        }
-    }
-    /// 当前音量
-    open var currentVolume: Float {
-        return session.outputVolume
-    }
 }
 public extension AudioManager {
     /// 必须要调用 start method 才能进行其他操作
@@ -161,30 +139,6 @@ public extension AudioManager {
             if flag {
                 self?.onEvents?(.seekComplete(Int(position * 1000)))
             }
-        }
-    }
-    
-    /// 设置音量大小 0~1
-    func setVolume(_ value: Float, show volume: Bool = true) {
-        var value = min(value, 1)
-        value = max(value, 0)
-        let volumeView = MPVolumeView()
-        var slider = UISlider()
-        for view in volumeView.subviews {
-            if NSStringFromClass(view.classForCoder) == "MPVolumeSlider" {
-                slider = view as! UISlider
-                break
-            }
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now()+0.01) {
-            slider.value = value
-        }
-        if volume {
-            if !showVolumeView {
-                showVolumeView = true
-            }
-        }else {
-            showVolumeView = false
         }
     }
     
@@ -514,20 +468,6 @@ fileprivate extension AudioManager {
                 }
             }
         default: ()
-        }
-    }
-    @objc func volumeChange(n: Notification){
-        guard let userInfo = n.userInfo, let parameter = userInfo["AVSystemController_AudioCategoryNotificationParameter"] as? String,
-              let reason = userInfo["AVSystemController_AudioVolumeChangeReasonNotificationParameter"] as? String,
-              let _volume = userInfo["AVSystemController_AudioVolumeNotificationParameter"] as? NSNumber else {
-            return
-        }
-        if (parameter == "Audio/Video") {
-            if (reason == "ExplicitVolumeChange") {
-                let volume = _volume.floatValue
-                print("当前音量\(volume)")
-                self.onEvents?(.volumeChange(volume))
-            }
         }
     }
 }

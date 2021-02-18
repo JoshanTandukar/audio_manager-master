@@ -45,10 +45,6 @@ class AudioManager {
   Duration get duration => _duration;
   Duration _duration = Duration(milliseconds: 0);
 
-  /// get current volume 0~1
-  double get volume => _volume;
-  double _volume = 0;
-
   /// If there are errors, return details
   String get error => _error;
   String _error;
@@ -136,10 +132,6 @@ class AudioManager {
       case "stop":
         _onEvents(AudioManagerEvents.stop, null);
         _reset();
-        break;
-      case "volumeChange":
-        _volume = call.arguments;
-        _onEvents(AudioManagerEvents.volumeChange, _volume);
         break;
       default:
         _onEvents(AudioManagerEvents.unknow, call.arguments);
@@ -373,15 +365,5 @@ class AudioManager {
       _curIndex = index < 0 ? _audioList.length - 1 : index;
     }
     return await play();
-  }
-
-  /// set volume range(0~1). `showVolume`: show volume view or not and this is only in iOS
-  /// ⚠️ IOS simulator is invalid, please use real machine
-  Future<String> setVolume(double value, {bool showVolume = false}) async {
-    var volume = min(value, 1);
-    value = max(value, 0);
-    final result = await _channel
-        .invokeMethod("setVolume", {"value": volume, "showVolume": showVolume});
-    return result;
   }
 }
