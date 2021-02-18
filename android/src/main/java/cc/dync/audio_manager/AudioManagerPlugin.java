@@ -18,14 +18,12 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /**
  * AudioManagerPlugin
  */
-public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler, VolumeChangeObserver.VolumeChangeListener {
+public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler {
 
     private static AudioManagerPlugin instance;
     private Context context;
     private MethodChannel channel;
     private MediaPlayerHelper helper;
-    private VolumeChangeObserver volumeChangeObserver;
-
     private static FlutterAssets flutterAssets;
     private static Registrar registrar;
 
@@ -79,9 +77,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler, Vol
 
         instance.helper = MediaPlayerHelper.getInstance(instance.context);
         setupPlayer();
-        volumeChangeObserver = new VolumeChangeObserver(instance.context);
-        volumeChangeObserver.setVolumeChangeListener(instance);
-        volumeChangeObserver.registerReceiver();
     }
 
     private void setupPlayer() {
@@ -217,17 +212,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler, Vol
                     result.success("参数错误");
                 }
                 break;
-            case "setVolume":
-                try {
-                    double value = Double.parseDouble(call.argument("value").toString());
-                    instance.volumeChangeObserver.setVolume(value);
-                } catch (Exception ex) {
-                    result.success("参数错误");
-                }
-                break;
-            case "currentVolume":
-                result.success(instance.volumeChangeObserver.getCurrentMusicVolume());
-                break;
             default:
                 result.notImplemented();
                 break;
@@ -237,11 +221,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler, Vol
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding)
     {
-        volumeChangeObserver.unregisterReceiver();
-    }
-
-    @Override
-    public void onVolumeChanged(double volume) {
-        instance.channel.invokeMethod("volumeChange", volume);
+    
     }
 }
