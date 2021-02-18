@@ -235,7 +235,9 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler, Vol
     }
 
     @Override
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding)
+    {
+        volumeChangeObserver.registerReceiver();
     }
 
     @Override
