@@ -176,15 +176,9 @@ class AudioManager {
   ///
   /// `desc`: Notification details; `cover`: cover image address, `network` address, or `asset` address;
   /// `auto`: Whether to play automatically, default is true;
-  Future<String> start(String url, String title,
-      {String desc, String cover, bool auto}) async {
+  Future<String> start(String url, { bool auto}) async {
     if (url == null || url.isEmpty) return "[url] can not be null or empty";
-    if (title == null || title.isEmpty)
-      return "[title] can not be null or empty";
-    cover = cover ?? "";
-    desc = desc ?? "";
-
-    _info = AudioInfo(url, title: title, desc: desc, coverUrl: cover);
+    _info = AudioInfo(url);
     _audioList.insert(0, _info);
     return await play(index: 0, auto: auto);
   }
@@ -193,13 +187,11 @@ class AudioManager {
   /// `'file://${file.path}'`.
   Future<String> file(File file, String title,
       {String desc, String cover, bool auto}) async {
-    return await start("file://${file.path}", title,
-        desc: desc, cover: cover, auto: auto);
+    return await start("file://${file.path}",auto: auto);
   }
 
   Future<String> startInfo(AudioInfo audio, {bool auto}) async {
-    return await start(audio.url, audio.title,
-        desc: audio.desc, cover: audio.coverUrl, auto: auto);
+    return await start(audio.url, auto: auto);
   }
 
   /// Play specified subscript audio if you want
@@ -213,15 +205,9 @@ class AudioManager {
     _info = random;
     _onEvents(AudioManagerEvents.start, _info);
 
-    final regx = new RegExp(r'^(http|https|file):\/\/\/?([\w.]+\/?)\S*');
     final result = await _channel.invokeMethod('start', {
       "url": _info.url,
-      "title": _info.title,
-      "desc": _info.desc,
-      "cover": _info.coverUrl,
       "isAuto": _auto,
-      "isLocal": !regx.hasMatch(_info.url),
-      "isLocalCover": !regx.hasMatch(_info.coverUrl),
     });
     return result;
   }

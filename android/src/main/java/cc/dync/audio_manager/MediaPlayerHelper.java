@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
@@ -85,8 +84,10 @@ public class MediaPlayerHelper {
      * @param context 引用
      * @return 实例
      */
-    public static synchronized MediaPlayerHelper getInstance(Context context) {
-        if (instance == null) {
+    public static synchronized MediaPlayerHelper getInstance(Context context)
+    {
+        if (instance == null)
+        {
             instance = new MediaPlayerHelper(context);
         }
         return instance;
@@ -112,7 +113,10 @@ public class MediaPlayerHelper {
         isPrepare = false;
     }
     
-    void play() {
+    void play()
+    {
+        Log.d(TAG, "play: "+canPlay());
+        Log.d(TAG, "play: "+isPlaying());
         if (canPlay()) return;
         if (isPlaying()) return;
         uiHolder.player.start();
