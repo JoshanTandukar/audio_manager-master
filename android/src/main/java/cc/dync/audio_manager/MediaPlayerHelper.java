@@ -608,7 +608,8 @@ public class MediaPlayerHelper {
     private OnStatusCallbackListener onStatusCallbackListener;
 
     // 接口类 -> OnStatusCallbackListener
-    public interface OnStatusCallbackListener {
+    public interface OnStatusCallbackListener
+    {
         void onStatusonStatusCallbackNext(CallBackState status, Object... args);
     }
 
