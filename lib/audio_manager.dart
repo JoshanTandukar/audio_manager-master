@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:audio_manager/src/AudioType.dart';
 import 'package:audio_manager/src/AudioInfo.dart';
@@ -44,10 +43,6 @@ class AudioManager {
   /// Total current playing time (ms
   Duration get duration => _duration;
   Duration _duration = Duration(milliseconds: 0);
-
-  /// get current volume 0~1
-  double get volume => _volume;
-  double _volume = 0;
 
   /// If there are errors, return details
   String get error => _error;

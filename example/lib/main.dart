@@ -19,7 +19,6 @@ class _MyAppState extends State<MyApp> {
   Duration _duration;
   Duration _position;
   double _slider;
-  double _sliderVolume;
   String _error;
   num curIndex = 0;
   PlayMode playMode = AudioManager.instance.playMode;
@@ -61,7 +60,8 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  void setupAudio() {
+  void setupAudio()
+  {
     List<AudioInfo> _list = [];
     list.forEach((item) => _list.add(AudioInfo(item["url"],
         title: item["title"], desc: item["desc"], coverUrl: item["coverUrl"])));
@@ -83,7 +83,6 @@ class _MyAppState extends State<MyApp> {
         case AudioManagerEvents.ready:
           print("ready to play");
           _error = null;
-          _sliderVolume = AudioManager.instance.volume;
           _position = AudioManager.instance.position;
           _duration = AudioManager.instance.duration;
           setState(() {});
@@ -109,10 +108,6 @@ class _MyAppState extends State<MyApp> {
           break;
         case AudioManagerEvents.ended:
           AudioManager.instance.next();
-          break;
-        case AudioManagerEvents.volumeChange:
-          _sliderVolume = AudioManager.instance.volume;
-          setState(() {});
           break;
         default:
           break;
@@ -318,7 +313,8 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  String _formatDuration(Duration d) {
+  String _formatDuration(Duration d)
+  {
     if (d == null) return "--:--";
     int minute = d.inMinutes;
     int second = (d.inSeconds > 60) ? (d.inSeconds % 60) : d.inSeconds;

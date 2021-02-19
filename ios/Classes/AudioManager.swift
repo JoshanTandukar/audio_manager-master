@@ -11,7 +11,7 @@ import MediaPlayer
 
 open class AudioManager: NSObject {
     public enum Events {
-        case ready(_ duration: Int), seekComplete(_ position: Int), stop, playing, buffering(Bool, Double), pause, ended, next, previous, error(NSError), volumeChange(Float)
+        case ready(_ duration: Int), seekComplete(_ position: Int), stop, playing, buffering(Bool, Double), pause, ended, next, previous, error(NSError)
     }
     
     public static let `default`: AudioManager = {

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 public class MediaPlayerHelper {
     private static final String TAG = MediaPlayerHelper.class.getSimpleName();
@@ -80,13 +81,13 @@ public class MediaPlayerHelper {
         previous("previous"),
         playOrPause("playOrPause"),
         stop("stop"),
-        ended("播放结束"),
-        error("播放错误"),
-        FORMAT_NOT_SUPPORT("音视频格式可能不支持"),
+        ended("Ended"),
+        error("Error"),
+        FORMAT_NOT_SUPPORT("Format Not Supported"),
         INFO("播放开始"),
         ready("准备完毕"),
         progress("播放进度回调"),
-        seekComplete("拖动完成"),
+        seekComplete("Seek Complete"),
         VIDEO_SIZE_CHANGE("读取视频大小"),
         SURFACE_CREATE("SurfaceView--Holder创建"),
         SURFACE_DESTROY("SurfaceView--Holder销毁"),

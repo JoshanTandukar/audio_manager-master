@@ -107,7 +107,7 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
                     channel.invokeMethod("playstatus", args[0]);
                     break;
                 case error:
-                    Log.v(TAG, "播放错误:" + args[0]);
+                    Log.v(TAG, "Error:" + args[0]);
                     channel.invokeMethod("error", args[0]);
                     helper.stop();
                     break;
