@@ -15,9 +15,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-/**
- * AudioManagerPlugin
- */
 public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler {
 
     private static AudioManagerPlugin instance;
@@ -195,22 +192,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler {
                 helper.stop();
             case "release":
                 helper.release();
-                break;
-            case "seekTo":
-                try {
-                    int position = Integer.parseInt(call.argument("position").toString());
-                    helper.seekTo(position);
-                } catch (Exception ex) {
-                    result.success("参数错误");
-                }
-                break;
-            case "rate":
-                try {
-                    double rate = Double.parseDouble(call.argument("rate").toString());
-                    helper.setSpeed((float) rate);
-                } catch (Exception ex) {
-                    result.success("参数错误");
-                }
                 break;
             default:
                 result.notImplemented();

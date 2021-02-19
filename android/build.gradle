@@ -36,7 +36,5 @@ android {
         targetCompatibility = 1.8
     }
     dependencies {
-        implementation 'com.google.android.exoplayer:exoplayer:2.13.0'
-        implementation 'com.google.android.exoplayer:exoplayer-ui:2.13.0'
     }
 }

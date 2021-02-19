@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:audio_manager/src/AudioType.dart';
 import 'package:audio_manager/src/AudioInfo.dart';
@@ -54,7 +53,8 @@ class AudioManager {
   List<AudioInfo> _audioList = [];
 
   /// Set up playlists. Use the [play] or [start] method if you want to play
-  set audioList(List<AudioInfo> list) {
+  set audioList(List<AudioInfo> list)
+  {
     if (list == null || list.length == 0)
       throw "[list] can not be null or empty";
     _audioList = list;
@@ -203,18 +203,13 @@ class AudioManager {
   }
 
   /// Play specified subscript audio if you want
-  Future<String> play({int index, bool auto}) async {
+  Future<String> play({int index, bool auto}) async
+  {
     if (index != null && (index < 0 || index >= _audioList.length))
       throw "invalid index";
     _auto = auto ?? true;
     _curIndex = index ?? _curIndex;
     final random = _initRandom();
-    // Do not replay the same url
-    if (_info.url != random.url) {
-      stop();
-      _isLoading = true;
-      _initialize = true;
-    }
     _info = random;
     _onEvents(AudioManagerEvents.start, _info);
 
@@ -333,8 +328,10 @@ class AudioManager {
     return _playMode;
   }
 
-  AudioInfo _initRandom() {
-    if (playMode == PlayMode.shuffle) {
+  AudioInfo _initRandom()
+  {
+    if (playMode == PlayMode.shuffle)
+    {
       if (_randoms.length != _audioList.length) {
         _randoms = _audioList.asMap().keys.toList();
         _randoms.shuffle();
@@ -351,7 +348,8 @@ class AudioManager {
   }
 
   /// play next audio
-  Future<String> next() async {
+  Future<String> next() async
+  {
     if (playMode != PlayMode.single) {
       _curIndex = (_curIndex + 1) % _audioList.length;
     }
@@ -359,7 +357,8 @@ class AudioManager {
   }
 
   /// play previous audio
-  Future<String> previous() async {
+  Future<String> previous() async
+  {
     if (playMode != PlayMode.single) {
       num index = _curIndex - 1;
       _curIndex = index < 0 ? _audioList.length - 1 : index;
