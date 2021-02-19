@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:audio_manager/src/AudioType.dart';
 import 'package:audio_manager/src/AudioInfo.dart';
@@ -44,6 +45,10 @@ class AudioManager {
   Duration get duration => _duration;
   Duration _duration = Duration(milliseconds: 0);
 
+  /// get current volume 0~1
+  double get volume => _volume;
+  double _volume = 0;
+
   /// If there are errors, return details
   String get error => _error;
   String _error;
@@ -53,8 +58,7 @@ class AudioManager {
   List<AudioInfo> _audioList = [];
 
   /// Set up playlists. Use the [play] or [start] method if you want to play
-  set audioList(List<AudioInfo> list)
-  {
+  set audioList(List<AudioInfo> list) {
     if (list == null || list.length == 0)
       throw "[list] can not be null or empty";
     _audioList = list;
@@ -68,7 +72,7 @@ class AudioManager {
 
   /// Play mode [sequence, shuffle, single], default `sequence`
   PlayMode get playMode => _playMode;
-  PlayMode _playMode = PlayMode.single;
+  PlayMode _playMode = PlayMode.sequence;
 
   /// Whether to internally handle [next] and [previous] events. default true
   bool intercepter = true;
@@ -133,6 +137,10 @@ class AudioManager {
         _onEvents(AudioManagerEvents.stop, null);
         _reset();
         break;
+      case "volumeChange":
+        _volume = call.arguments;
+        _onEvents(AudioManagerEvents.volumeChange, _volume);
+        break;
       default:
         _onEvents(AudioManagerEvents.unknow, call.arguments);
         break;
@@ -176,9 +184,15 @@ class AudioManager {
   ///
   /// `desc`: Notification details; `cover`: cover image address, `network` address, or `asset` address;
   /// `auto`: Whether to play automatically, default is true;
-  Future<String> start(String url, { bool auto}) async {
+  Future<String> start(String url, String title,
+      {String desc, String cover, bool auto}) async {
     if (url == null || url.isEmpty) return "[url] can not be null or empty";
-    _info = AudioInfo(url);
+    if (title == null || title.isEmpty)
+      return "[title] can not be null or empty";
+    cover = cover ?? "";
+    desc = desc ?? "";
+
+    _info = AudioInfo(url, title: title, desc: desc, coverUrl: cover);
     _audioList.insert(0, _info);
     return await play(index: 0, auto: auto);
   }
@@ -187,27 +201,40 @@ class AudioManager {
   /// `'file://${file.path}'`.
   Future<String> file(File file, String title,
       {String desc, String cover, bool auto}) async {
-    return await start("file://${file.path}",auto: auto);
+    return await start("file://${file.path}", title,
+        desc: desc, cover: cover, auto: auto);
   }
 
   Future<String> startInfo(AudioInfo audio, {bool auto}) async {
-    return await start(audio.url, auto: auto);
+    return await start(audio.url, audio.title,
+        desc: audio.desc, cover: audio.coverUrl, auto: auto);
   }
 
   /// Play specified subscript audio if you want
-  Future<String> play({int index, bool auto}) async
-  {
+  Future<String> play({int index, bool auto}) async {
     if (index != null && (index < 0 || index >= _audioList.length))
       throw "invalid index";
     _auto = auto ?? true;
     _curIndex = index ?? _curIndex;
     final random = _initRandom();
+    // Do not replay the same url
+    if (_info.url != random.url) {
+      stop();
+      _isLoading = true;
+      _initialize = true;
+    }
     _info = random;
     _onEvents(AudioManagerEvents.start, _info);
 
+    final regx = new RegExp(r'^(http|https|file):\/\/\/?([\w.]+\/?)\S*');
     final result = await _channel.invokeMethod('start', {
       "url": _info.url,
+      "title": _info.title,
+      "desc": _info.desc,
+      "cover": _info.coverUrl,
       "isAuto": _auto,
+      "isLocal": !regx.hasMatch(_info.url),
+      "isLocalCover": !regx.hasMatch(_info.coverUrl),
     });
     return result;
   }
@@ -314,10 +341,8 @@ class AudioManager {
     return _playMode;
   }
 
-  AudioInfo _initRandom()
-  {
-    if (playMode == PlayMode.shuffle)
-    {
+  AudioInfo _initRandom() {
+    if (playMode == PlayMode.shuffle) {
       if (_randoms.length != _audioList.length) {
         _randoms = _audioList.asMap().keys.toList();
         _randoms.shuffle();
@@ -334,8 +359,7 @@ class AudioManager {
   }
 
   /// play next audio
-  Future<String> next() async
-  {
+  Future<String> next() async {
     if (playMode != PlayMode.single) {
       _curIndex = (_curIndex + 1) % _audioList.length;
     }
@@ -343,12 +367,21 @@ class AudioManager {
   }
 
   /// play previous audio
-  Future<String> previous() async
-  {
+  Future<String> previous() async {
     if (playMode != PlayMode.single) {
       num index = _curIndex - 1;
       _curIndex = index < 0 ? _audioList.length - 1 : index;
     }
     return await play();
+  }
+
+  /// set volume range(0~1). `showVolume`: show volume view or not and this is only in iOS
+  /// ⚠️ IOS simulator is invalid, please use real machine
+  Future<String> setVolume(double value, {bool showVolume = false}) async {
+    var volume = min(value, 1);
+    value = max(value, 0);
+    final result = await _channel
+        .invokeMethod("setVolume", {"value": volume, "showVolume": showVolume});
+    return result;
   }
 }

@@ -19,6 +19,7 @@ class _MyAppState extends State<MyApp> {
   Duration _duration;
   Duration _position;
   double _slider;
+  double _sliderVolume;
   String _error;
   num curIndex = 0;
   PlayMode playMode = AudioManager.instance.playMode;
@@ -28,6 +29,12 @@ class _MyAppState extends State<MyApp> {
       "title": "Assets",
       "desc": "assets playback",
       "url": "assets/xv.mp3",
+      "coverUrl": "assets/ic_launcher.png"
+    },
+    {
+      "title": "Assets",
+      "desc": "assets playback",
+      "url": "assets/incoming.wav",
       "coverUrl": "assets/ic_launcher.png"
     },
     {
@@ -77,6 +84,7 @@ class _MyAppState extends State<MyApp> {
         case AudioManagerEvents.ready:
           print("ready to play");
           _error = null;
+          _sliderVolume = AudioManager.instance.volume;
           _position = AudioManager.instance.position;
           _duration = AudioManager.instance.duration;
           setState(() {});
@@ -108,6 +116,10 @@ class _MyAppState extends State<MyApp> {
           break;
         case AudioManagerEvents.ended:
           AudioManager.instance.next();
+          break;
+        case AudioManagerEvents.volumeChange:
+          _sliderVolume = AudioManager.instance.volume;
+          setState(() {});
           break;
         default:
           break;
@@ -159,6 +171,10 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: <Widget>[
               Text('Running on: $_platformVersion\n'),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: volumeFrame(),
+              ),
               Expanded(
                 child: ListView.separated(
                     itemBuilder: (context, index) {
@@ -321,5 +337,31 @@ class _MyAppState extends State<MyApp> {
         ":" +
         ((second < 10) ? "0$second" : "$second");
     return format;
+  }
+
+  Widget volumeFrame() {
+    return Row(children: <Widget>[
+      IconButton(
+          padding: EdgeInsets.all(0),
+          icon: Icon(
+            Icons.audiotrack,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            AudioManager.instance.setVolume(0);
+          }),
+      Expanded(
+          child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 0),
+              child: Slider(
+                value: _sliderVolume ?? 0,
+                onChanged: (value) {
+                  setState(() {
+                    _sliderVolume = value;
+                    AudioManager.instance.setVolume(value, showVolume: true);
+                  });
+                },
+              )))
+    ]);
   }
 }
