@@ -22,8 +22,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
                 channel.invokeMethod("buffering", arguments: ["buffering": buffering, "buffer": buffer])
             case .playing, .pause:
                 channel.invokeMethod("playstatus", arguments: AudioManager.default.playing)
-            case .timeupdate(let position, let duration):
-                channel.invokeMethod("timeupdate", arguments: ["position": Int(position*1000), "duration": Int(duration*1000)])
             case .error(let e):
                 DispatchQueue.main.async {
                     AudioManager.default.clean()
@@ -93,8 +91,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
             AudioManager.default.stop()
         case "release":
             AudioManager.default.clean()
-        case "updateLrc":
-            AudioManager.default.desc = arguments["lrc"] as? String
         case "seekTo":
             guard let position = arguments["position"] as? Double else {
                 result("参数错误")

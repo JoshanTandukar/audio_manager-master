@@ -106,15 +106,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
                     if (args.length == 0) return;
                     channel.invokeMethod("playstatus", args[0]);
                     break;
-                case progress:
-                    if (args.length == 0) return;
-                    Log.v(TAG, "进度:" + args[0] + "%");
-
-                    Map map2 = new HashMap();
-                    map2.put("position", helper.position());
-                    map2.put("duration", helper.duration());
-                    channel.invokeMethod("timeupdate", map2);
-                    break;
                 case error:
                     Log.v(TAG, "播放错误:" + args[0]);
                     channel.invokeMethod("error", args[0]);

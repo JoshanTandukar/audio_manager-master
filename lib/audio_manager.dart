@@ -103,20 +103,6 @@ class AudioManager {
       case "playstatus":
         _setPlaying(call.arguments ?? false);
         break;
-      case "timeupdate":
-        _error = null;
-        _position = Duration(milliseconds: call.arguments["position"] ?? 0);
-        _duration = Duration(milliseconds: call.arguments["duration"] ?? 0);
-        if (!_playing) _setPlaying(true);
-        if (_position.inMilliseconds < 0 || _duration.inMilliseconds <= 0)
-          break;
-        if (_position > _duration) {
-          _position = _duration;
-          _setPlaying(false);
-        }
-        _onEvents(AudioManagerEvents.timeupdate,
-            {"position": _position, "duration": _duration});
-        break;
       case "error":
         _error = call.arguments;
         if (_playing) _setPlaying(false);
@@ -136,10 +122,6 @@ class AudioManager {
       case "stop":
         _onEvents(AudioManagerEvents.stop, null);
         _reset();
-        break;
-      case "volumeChange":
-        _volume = call.arguments;
-        _onEvents(AudioManagerEvents.volumeChange, _volume);
         break;
       default:
         _onEvents(AudioManagerEvents.unknow, call.arguments);
@@ -304,20 +286,12 @@ class AudioManager {
     _duration = Duration(milliseconds: 0);
     _position = Duration(milliseconds: 0);
     _setPlaying(false);
-    _onEvents(AudioManagerEvents.timeupdate,
-        {"position": _position, "duration": _duration});
   }
 
   /// release all resource
   release() {
     _reset();
     _channel.invokeListMethod("release");
-  }
-
-  /// Update play details
-  updateLrc(String lrc) {
-    if (_preprocessing().isNotEmpty) return _preprocessing();
-    _channel.invokeMethod("updateLrc", {"lrc": lrc});
   }
 
   /// Switch playback mode. `Playmode` priority is greater than `index`
@@ -373,15 +347,5 @@ class AudioManager {
       _curIndex = index < 0 ? _audioList.length - 1 : index;
     }
     return await play();
-  }
-
-  /// set volume range(0~1). `showVolume`: show volume view or not and this is only in iOS
-  /// ⚠️ IOS simulator is invalid, please use real machine
-  Future<String> setVolume(double value, {bool showVolume = false}) async {
-    var volume = min(value, 1);
-    value = max(value, 0);
-    final result = await _channel
-        .invokeMethod("setVolume", {"value": volume, "showVolume": showVolume});
-    return result;
   }
 }

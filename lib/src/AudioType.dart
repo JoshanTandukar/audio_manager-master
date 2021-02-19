@@ -14,7 +14,6 @@ enum AudioManagerEvents {
 
   /// [isPlaying] status
   playstatus,
-  timeupdate,
   error,
   next,
   previous,

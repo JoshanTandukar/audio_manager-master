@@ -74,8 +74,7 @@ class _MyAppState extends State<MyApp> {
       print("$events, $args");
       switch (events) {
         case AudioManagerEvents.start:
-          print(
-              "start load data callback, curIndex is ${AudioManager.instance.curIndex}");
+          print("start load data callback, curIndex is ${AudioManager.instance.curIndex}");
           _position = AudioManager.instance.position;
           _duration = AudioManager.instance.duration;
           _slider = 0;
@@ -103,12 +102,6 @@ class _MyAppState extends State<MyApp> {
         case AudioManagerEvents.playstatus:
           isPlaying = AudioManager.instance.isPlaying;
           setState(() {});
-          break;
-        case AudioManagerEvents.timeupdate:
-          _position = AudioManager.instance.position;
-          _slider = _position.inMilliseconds / _duration.inMilliseconds;
-          setState(() {});
-          AudioManager.instance.updateLrc(args["position"].toString());
           break;
         case AudioManagerEvents.error:
           _error = args;
@@ -171,10 +164,6 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: <Widget>[
               Text('Running on: $_platformVersion\n'),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: volumeFrame(),
-              ),
               Expanded(
                 child: ListView.separated(
                     itemBuilder: (context, index) {
@@ -337,31 +326,5 @@ class _MyAppState extends State<MyApp> {
         ":" +
         ((second < 10) ? "0$second" : "$second");
     return format;
-  }
-
-  Widget volumeFrame() {
-    return Row(children: <Widget>[
-      IconButton(
-          padding: EdgeInsets.all(0),
-          icon: Icon(
-            Icons.audiotrack,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            AudioManager.instance.setVolume(0);
-          }),
-      Expanded(
-          child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0),
-              child: Slider(
-                value: _sliderVolume ?? 0,
-                onChanged: (value) {
-                  setState(() {
-                    _sliderVolume = value;
-                    AudioManager.instance.setVolume(value, showVolume: true);
-                  });
-                },
-              )))
-    ]);
   }
 }

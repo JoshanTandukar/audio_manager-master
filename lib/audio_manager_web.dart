@@ -25,11 +25,6 @@ class WrappedPlayer {
     }
   }
 
-  void setVolume(double volume) {
-    currentVolume = volume;
-    player?.volume = volume;
-  }
-
   void setRate(double rate) {
     currentRate = rate;
     player?.playbackRate = rate;
@@ -159,13 +154,8 @@ class AudioManagerPlugin {
         double rate = call.arguments['rate'] ?? 1.0;
         player.setRate(rate);
         return 1;
-      case "setVolume":
-        double volume = call.arguments['volume'] ?? 1.0;
-        player.setVolume(volume);
-        break;
       case "currentVolume":
         return player.currentVolume;
-      case 'updateLrc':
       default:
         throw PlatformException(
           code: 'Unimplemented',

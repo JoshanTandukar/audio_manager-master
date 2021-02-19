@@ -11,7 +11,7 @@ import MediaPlayer
 
 open class AudioManager: NSObject {
     public enum Events {
-        case ready(_ duration: Int), seekComplete(_ position: Int), stop, playing, buffering(Bool, Double), pause, ended, next, previous, timeupdate(_ position: Double, _ duration: Double), error(NSError), volumeChange(Float)
+        case ready(_ duration: Int), seekComplete(_ position: Int), stop, playing, buffering(Bool, Double), pause, ended, next, previous, error(NSError), volumeChange(Float)
     }
     
     public static let `default`: AudioManager = {
@@ -388,7 +388,6 @@ fileprivate extension AudioManager {
         if duration.isNaN || currentTime.isNaN { return }
         
         setRemoteInfo()
-        onEvents?(.timeupdate(currentTime, duration))
     }
     func setRemoteInfo() {
         let center = MPNowPlayingInfoCenter.default()
