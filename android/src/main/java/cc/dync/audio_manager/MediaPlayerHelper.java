@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaDataSource;
 import android.media.MediaPlayer;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -23,11 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Objects;
 
-/**
- * 多媒体播放
- */
 public class MediaPlayerHelper {
     private static final String TAG = MediaPlayerHelper.class.getSimpleName();
 
@@ -38,7 +33,6 @@ public class MediaPlayerHelper {
     private static MediaPlayerHelper instance;
     private int delaySecondTime = 1000;//进度回调间隔
     private boolean isHolderCreate = false;//SurfaceHolder是否准备好了
-    private WifiManager.WifiLock wifiLock;
     private String curUrl = "";//当前初始化url
     private boolean isPrepare = false;
 
@@ -314,11 +308,9 @@ public class MediaPlayerHelper {
     /**
      * 释放资源
      */
-    public void release() {
+    public void release()
+    {
         stop();
-
-        if (wifiLock != null && wifiLock.isHeld())
-            wifiLock.release();
     }
 
 //    /**
@@ -529,16 +521,9 @@ public class MediaPlayerHelper {
         return true;
     }
 
-    private void keepAlive() {
-        // 设置设备进入锁状态模式-可在后台播放或者缓冲音乐-CPU一直工作
+    private void keepAlive()
+    {
         uiHolder.player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
-        // 当播放的时候一直让屏幕变亮
-//        player.setScreenOnWhilePlaying(true);
-
-        // 如果你使用wifi播放流媒体，你还需要持有wifi锁
-        wifiLock = ((WifiManager) Objects.requireNonNull(context.getApplicationContext().getSystemService(Context.WIFI_SERVICE)))
-                .createWifiLock(WifiManager.WIFI_MODE_FULL, "wifilock");
-        wifiLock.acquire();
     }
 
     /**
