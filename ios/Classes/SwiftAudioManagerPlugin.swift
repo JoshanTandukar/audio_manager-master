@@ -16,10 +16,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
             switch event {
             case .ready(let duration):
                 channel.invokeMethod("ready", arguments: duration)
-            case .seekComplete(let position):
-                channel.invokeMethod("seekComplete", arguments: position)
-            case .buffering(let buffering, let buffer):
-                channel.invokeMethod("buffering", arguments: ["buffering": buffering, "buffer": buffer])
             case .playing, .pause:
                 channel.invokeMethod("playstatus", arguments: AudioManager.default.playing)
             case .error(let e):
@@ -50,7 +46,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
                 result("参数错误")
                 return
             }
-            AudioManager.default.title = arguments["title"] as? String
             AudioManager.default.desc = arguments["desc"] as? String
             if let cover = arguments["cover"] as? String, let isLocalCover = arguments["isLocalCover"] as? Bool {
                 if !isLocalCover, let _cover = URL(string: cover) {
@@ -91,18 +86,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
             AudioManager.default.stop()
         case "release":
             AudioManager.default.clean()
-        case "seekTo":
-            guard let position = arguments["position"] as? Double else {
-                result("参数错误")
-                return
-            }
-            AudioManager.default.seek(to: position/1000, link: url)
-        case "rate":
-            guard let rate = arguments["rate"] as? Double else {
-                result("参数错误")
-                return
-            }
-            AudioManager.default.rate = Float(rate)
         default:
             result(FlutterMethodNotImplemented)
         }

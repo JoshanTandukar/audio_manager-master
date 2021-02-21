@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Objects;
 
 public class MediaPlayerHelper {
     private static final String TAG = MediaPlayerHelper.class.getSimpleName();
@@ -30,7 +29,7 @@ public class MediaPlayerHelper {
     private String[] ext = {".3gp", ".3GP", ".mp4", ".MP4", ".mp3", ".ogg", ".OGG", ".MP3", ".wav", ".WAV"};//定义我们支持的文件格式
     private Holder uiHolder;//UI的容器
     private Context context;
-    private MediaInfo mediaInfo = new MediaInfo("title", null);
+    private MediaInfo mediaInfo = new MediaInfo( null);
     private static MediaPlayerHelper instance;
     private int delaySecondTime = 1000;//进度回调间隔
     private boolean isHolderCreate = false;//SurfaceHolder是否准备好了
@@ -38,12 +37,6 @@ public class MediaPlayerHelper {
     private boolean isPrepare = false;
 
     static class MediaInfo {
-        String title;
-        /**
-         * 资源路径
-         * if isAsset: true （url 名字,带后缀，比如:text.mp3
-         * else url is file path or network path
-         */
         String url;
         /**
          * 资源描述
@@ -66,8 +59,7 @@ public class MediaPlayerHelper {
          */
         boolean isAuto = true;
 
-        MediaInfo(String title, String url) {
-            this.title = title;
+        MediaInfo(String url) {
             this.url = url;
         }
     }
@@ -76,7 +68,6 @@ public class MediaPlayerHelper {
      * 状态枚举
      */
     public enum CallBackState {
-        buffering("MediaPlayer--更新流媒体缓存状态"),
         next("next"),
         previous("previous"),
         playOrPause("playOrPause"),
@@ -87,7 +78,6 @@ public class MediaPlayerHelper {
         INFO("播放开始"),
         ready("准备完毕"),
         progress("播放进度回调"),
-        seekComplete("Seek Complete"),
         VIDEO_SIZE_CHANGE("读取视频大小"),
         SURFACE_CREATE("SurfaceView--Holder创建"),
         SURFACE_DESTROY("SurfaceView--Holder销毁"),
@@ -285,12 +275,6 @@ public class MediaPlayerHelper {
         return uiHolder.player.getDuration();
     }
 
-    boolean seekTo(int position) {
-        if (uiHolder.player == null) return false;
-        uiHolder.player.seekTo(position);
-        return true;
-    }
-
     /**
      * 停止资源
      */
@@ -427,9 +411,6 @@ public class MediaPlayerHelper {
             }
             onStatusCallbackNext(CallBackState.ready, holderMsg);
         });
-        uiHolder.player.setOnSeekCompleteListener(mp -> onStatusCallbackNext(CallBackState.seekComplete, mp));
-        uiHolder.player.setOnVideoSizeChangedListener((mp, width, height) -> onStatusCallbackNext(CallBackState.VIDEO_SIZE_CHANGE, width, height));
-        uiHolder.player.setOnBufferingUpdateListener((mp, percent) -> onStatusCallbackNext(CallBackState.buffering, mp, percent));
     }
 
     /**

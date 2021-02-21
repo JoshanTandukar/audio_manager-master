@@ -6,12 +6,6 @@ enum AudioManagerEvents {
   /// ready to play. If you want to invoke [seekTo], you must follow this callback
   ready,
 
-  /// seek completed
-  seekComplete,
-
-  /// buffering size
-  buffering,
-
   /// [isPlaying] status
   playstatus,
   error,
@@ -62,4 +56,4 @@ class PlaybackState {
 }
 
 /// play state
-enum AudioState { none, paused, playing, buffering, error }
+enum AudioState { none, paused, playing, error }

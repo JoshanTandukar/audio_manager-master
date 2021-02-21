@@ -87,14 +87,6 @@ class AudioManager {
         _duration = Duration(milliseconds: call.arguments ?? 0);
         _onEvents(AudioManagerEvents.ready, _duration);
         break;
-      case "seekComplete":
-        _position = Duration(milliseconds: call.arguments ?? 0);
-        if (_duration.inMilliseconds != 0)
-          _onEvents(AudioManagerEvents.seekComplete, _position);
-        break;
-      case "buffering":
-        _onEvents(AudioManagerEvents.buffering, call.arguments);
-        break;
       case "playstatus":
         _setPlaying(call.arguments ?? false);
         break;
@@ -161,30 +153,27 @@ class AudioManager {
   ///
   /// `desc`: Notification details; `cover`: cover image address, `network` address, or `asset` address;
   /// `auto`: Whether to play automatically, default is true;
-  Future<String> start(String url, String title,
+  Future<String> start(String url,
       {String desc, String cover, bool auto}) async {
     if (url == null || url.isEmpty) return "[url] can not be null or empty";
-    if (title == null || title.isEmpty)
-      return "[title] can not be null or empty";
     cover = cover ?? "";
     desc = desc ?? "";
 
-    _info = AudioInfo(url, title: title, desc: desc, coverUrl: cover);
+    _info = AudioInfo(url,desc: desc, coverUrl: cover);
     _audioList.insert(0, _info);
     return await play(index: 0, auto: auto);
   }
 
   /// This will load the file from the file-URI given by:
   /// `'file://${file.path}'`.
-  Future<String> file(File file, String title,
+  Future<String> file(File file,
       {String desc, String cover, bool auto}) async {
-    return await start("file://${file.path}", title,
+    return await start("file://${file.path}",
         desc: desc, cover: cover, auto: auto);
   }
 
   Future<String> startInfo(AudioInfo audio, {bool auto}) async {
-    return await start(audio.url, audio.title,
-        desc: audio.desc, cover: audio.coverUrl, auto: auto);
+    return await start(audio.url, desc: audio.desc, cover: audio.coverUrl, auto: auto);
   }
 
   /// Play specified subscript audio if you want
@@ -206,7 +195,6 @@ class AudioManager {
     final regx = new RegExp(r'^(http|https|file):\/\/\/?([\w.]+\/?)\S*');
     final result = await _channel.invokeMethod('start', {
       "url": _info.url,
-      "title": _info.title,
       "desc": _info.desc,
       "cover": _info.coverUrl,
       "isAuto": _auto,
@@ -246,27 +234,6 @@ class AudioManager {
     bool playing = await _channel.invokeMethod("pause");
     _setPlaying(playing);
     return playing;
-  }
-
-  /// `position` Move location millisecond timestamp.
-  ///
-  /// ⚠️ You must after [AudioManagerEvents.ready] event invoked before you can change the playback progress
-  Future<String> seekTo(Duration position) async {
-    if (_preprocessing().isNotEmpty) return _preprocessing();
-    if (position.inMilliseconds < 0 ||
-        position.inMilliseconds > duration.inMilliseconds)
-      return "[position] must be greater than 0 and less than the total duration";
-    return await _channel
-        .invokeMethod("seekTo", {"position": position.inMilliseconds});
-  }
-
-  /// `rate` Play rate, default [AudioRate.rate100] is 1.0
-  Future<String> setRate(AudioRate rate) async {
-    if (_preprocessing().isNotEmpty) return _preprocessing();
-    const _rates = [0.5, 0.75, 1, 1.5, 1.75, 2];
-    rate = rate ?? AudioRate.rate100;
-    double _rate = _rates[rate.index].toDouble();
-    return await _channel.invokeMethod("rate", {"rate": _rate});
   }
 
   /// stop play

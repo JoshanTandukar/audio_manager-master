@@ -11,7 +11,7 @@ import MediaPlayer
 
 open class AudioManager: NSObject {
     public enum Events {
-        case ready(_ duration: Int), seekComplete(_ position: Int), stop, playing, buffering(Bool, Double), pause, ended, next, previous, error(NSError)
+        case ready(_ duration: Int), stop, playing, pause, ended, next, previous, error(NSError)
     }
     
     public static let `default`: AudioManager = {
@@ -27,34 +27,14 @@ open class AudioManager: NSObject {
     }
     /// 事件回调  ⚠️使用weak防止内存泄露
     open var onEvents: ((Events)->Void)?
-    /// 是否缓存中
-    open fileprivate(set) var buffering = true {
-        didSet {
-            onEvents?(.buffering(buffering, buffer))
-        }
-    }
-    /// 缓存进度
-    open fileprivate(set) var buffer: Double = 0 {
-        didSet {
-            onEvents?(.buffering(buffering, buffer))
-        }
-    }
     /// 是否正在播放
     open fileprivate(set) var playing: Bool = false
     /// 最近播放的URL
     open fileprivate(set) var url: String?
     /// 标题
-    open var title: String?
-    /// 描述
     open var desc: String?
     /// 封面图
     open var cover: UIImageView?
-    /// 播放速率
-    open var rate: Float = 1 {
-        didSet {
-            queue.rate = rate
-        }
-    }
     /// 是否自动播放
     open var isAuto: Bool = true
     
@@ -111,7 +91,6 @@ public extension AudioManager {
             _playingMusic[link] = playerItem
             queue.replaceCurrentItem(with: playerItem)
             queue.actionAtItemEnd = .none
-            queue.rate = rate
             if #available(iOS 10.0, *) {
                 queue.automaticallyWaitsToMinimizeStalling = false
             }
@@ -128,20 +107,6 @@ public extension AudioManager {
         NotificationCenter.default.addObserver(self, selector: #selector(playerFinishPlaying(_:)), name: .AVPlayerItemDidPlayToEndTime, object: queue.currentItem)
     }
     
-    func seek(to position: Double, link: String? = nil) {
-        guard let _url = link ?? url, let playerItem = _playingMusic[_url] as? AVPlayerItem else {
-            onError(.notReady)
-            return
-        }
-        if queue.currentItem?.status != .readyToPlay { return }
-        let timescale = queue.currentItem?.asset.duration.timescale ?? 0
-        playerItem.seek(to: CMTime(seconds: position, preferredTimescale: timescale)) {[weak self] (flag) in
-            if flag {
-                self?.onEvents?(.seekComplete(Int(position * 1000)))
-            }
-        }
-    }
-    
     /// 播放▶️音乐🎵
     func play(_ link: String? = nil) {
         if playing { return }
@@ -149,12 +114,7 @@ public extension AudioManager {
             onError(.notReady)
             return
         }
-        if #available(iOS 10.0, *) {
-            queue.playImmediately(atRate: rate)
-        } else {
-            queue.play()
-            queue.rate = rate
-        }
+        queue.play()
         playing = true
         onEvents?(.playing)
     }
@@ -274,15 +234,9 @@ fileprivate extension AudioManager {
             let total = _playerItem.duration.seconds
             self.buffer = cached / total * 100
         }
-        
-        observeBufferEmpty = queue.currentItem?.observe(\.isPlaybackBufferEmpty) {
-            [weak self] _playerItem, change in
-            self?.buffering = true
-        }
-        
+
         observeCanPlay = queue.currentItem?.observe(\.isPlaybackLikelyToKeepUp) {
             [weak self] _playerItem, change in
-            self?.buffering = false
         }
     }
     /// 监听时间变化
@@ -392,14 +346,9 @@ fileprivate extension AudioManager {
     func setRemoteInfo() {
         let center = MPNowPlayingInfoCenter.default()
         var infos = [String: Any]()
-        
-        infos[MPMediaItemPropertyTitle] = title
         infos[MPMediaItemPropertyArtist] = desc
         infos[MPMediaItemPropertyPlaybackDuration] = Double(duration / 1000)
         infos[MPNowPlayingInfoPropertyElapsedPlaybackTime] = Double(currentTime / 1000)
-        infos[MPNowPlayingInfoPropertyPlaybackRate] = queue.rate
-        queue.rate = rate
-        
         let image = cover?.image ?? UIImage()
         if #available(iOS 11.0, *) {
             infos[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: image)

@@ -28,15 +28,19 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
     private static FlutterAssets flutterAssets;
     private static Registrar registrar;
 
-    private static synchronized AudioManagerPlugin getInstance() {
-        if (instance == null) {
+    private static synchronized AudioManagerPlugin getInstance()
+    {
+        if (instance == null)
+        {
             instance = new AudioManagerPlugin();
         }
         return instance;
     }
 
-    public AudioManagerPlugin() {
-        if (instance == null) {
+    public AudioManagerPlugin()
+    {
+        if (instance == null)
+        {
             instance = this;
         }
     }
@@ -80,7 +84,8 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
         setupPlayer();
     }
 
-    private void setupPlayer() {
+    private void setupPlayer()
+    {
         MediaPlayerHelper helper = instance.helper;
         MethodChannel channel = instance.channel;
 
@@ -89,18 +94,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
             switch (status) {
                 case ready:
                     channel.invokeMethod("ready", helper.duration());
-                    break;
-                case seekComplete:
-                    channel.invokeMethod("seekComplete", helper.position());
-                    break;
-                case buffering:
-                    if (args.length == 0) return;
-                    Log.v(TAG, "网络缓冲:" + args[1] + "%");
-
-                    Map map = new HashMap();
-                    map.put("buffering", !helper.isPlaying());
-                    map.put("buffer", args[1]);
-                    channel.invokeMethod("buffering", map);
                     break;
                 case playOrPause:
                     if (args.length == 0) return;
@@ -132,42 +125,53 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         MediaPlayerHelper helper = instance.helper;
-        switch (call.method) {
+        switch (call.method)
+        {
             case "getPlatformVersion":
                 result.success("Android " + android.os.Build.VERSION.RELEASE);
                 break;
             case "start":
                 String url = call.argument("url");
-                String title = call.argument("title");
                 String desc = call.argument("desc");
                 String cover = call.argument("cover");
 
                 boolean isLocal = call.hasArgument("isLocal") ? call.argument("isLocal") : false;
                 boolean isLocalCover = call.hasArgument("isLocalCover") ? call.argument("isLocalCover") : false;
                 boolean isAuto = call.hasArgument("isAuto") ? call.argument("isAuto") : false;
-                MediaPlayerHelper.MediaInfo info = new MediaPlayerHelper.MediaInfo(title, url);
+                MediaPlayerHelper.MediaInfo info = new MediaPlayerHelper.MediaInfo(url);
                 info.desc = desc;
                 info.isAsset = isLocal;
                 info.isAuto = isAuto;
-                if (isLocal) {
-                    if (registrar != null) {
+                if (isLocal)
+                {
+                    if (registrar != null)
+                    {
                         info.url = registrar.lookupKeyForAsset(url);
-                    } else if (flutterAssets != null) {
+                    }
+                    else if (flutterAssets != null)
+                    {
                         info.url = AudioManagerPlugin.flutterAssets.getAssetFilePathByName(url);
                     }
                 }
                 info.cover = cover;
-                if (isLocalCover) {
-                    if (registrar != null) {
+                if (isLocalCover)
+                {
+                    if (registrar != null)
+                    {
                         info.cover = registrar.lookupKeyForAsset(cover);
-                    } else if (flutterAssets != null) {
+                    }
+                    else if (flutterAssets != null)
+                    {
                         info.cover = AudioManagerPlugin.flutterAssets.getAssetFilePathByName(cover);
                     }
                 }
 
-                try {
+                try
+                {
                     helper.start(info);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     result.success(e.getMessage());
                 }
                 break;
@@ -188,22 +192,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
             case "release":
                 helper.release();
                 break;
-            case "seekTo":
-                try {
-                    int position = Integer.parseInt(call.argument("position").toString());
-                    helper.seekTo(position);
-                } catch (Exception ex) {
-                    result.success("参数错误");
-                }
-                break;
-            case "rate":
-                try {
-                    double rate = Double.parseDouble(call.argument("rate").toString());
-                    helper.setSpeed((float) rate);
-                } catch (Exception ex) {
-                    result.success("参数错误");
-                }
-                break;
             default:
                 result.notImplemented();
                 break;
@@ -211,6 +199,7 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
     }
 
     @Override
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding)
+    {
     }
 }

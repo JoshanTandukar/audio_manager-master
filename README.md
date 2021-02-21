@@ -43,13 +43,7 @@ you can use local `assets`, `directory file` or `network` resources
 // Initial playback. Preloaded playback information
 AudioManager.instance
 	.start(
-		"assets/audio.mp3",
-		// "network format resource"
-		// "local resource (file://${file.path})"
-		"title",
-		desc: "desc",
-		// cover: "network cover image resource"
-		cover: "assets/ic_launcher.png")
+		"assets/audio.mp3")
 	.then((err) {
 	print(err);
 });

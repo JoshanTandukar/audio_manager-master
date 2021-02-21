@@ -25,19 +25,16 @@ class _MyAppState extends State<MyApp> {
 
   final list = [
     {
-      "title": "Assets",
       "desc": "assets playback",
       "url": "assets/xv.mp3",
       "coverUrl": "assets/ic_launcher.png"
     },
     {
-      "title": "Assets",
       "desc": "assets playback",
       "url": "assets/incoming.wav",
       "coverUrl": "assets/ic_launcher.png"
     },
     {
-      "title": "network",
       "desc": "network resouce playback",
       "url": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.m4a",
       "coverUrl": "https://homepages.cae.wisc.edu/~ece533/images/airplane.png"
@@ -64,7 +61,7 @@ class _MyAppState extends State<MyApp> {
   {
     List<AudioInfo> _list = [];
     list.forEach((item) => _list.add(AudioInfo(item["url"],
-        title: item["title"], desc: item["desc"], coverUrl: item["coverUrl"])));
+        desc: item["desc"], coverUrl: item["coverUrl"])));
 
     AudioManager.instance.audioList = _list;
     AudioManager.instance.intercepter = true;
@@ -88,15 +85,6 @@ class _MyAppState extends State<MyApp> {
           setState(() {});
           // if you need to seek times, must after AudioManagerEvents.ready event invoked
           // AudioManager.instance.seekTo(Duration(seconds: 10));
-          break;
-        case AudioManagerEvents.seekComplete:
-          _position = AudioManager.instance.position;
-          _slider = _position.inMilliseconds / _duration.inMilliseconds;
-          setState(() {});
-          print("seek event is completed. position is [$args]/ms");
-          break;
-        case AudioManagerEvents.buffering:
-          print("buffering $args");
           break;
         case AudioManagerEvents.playstatus:
           isPlaying = AudioManager.instance.isPlaying;
@@ -126,8 +114,7 @@ class _MyAppState extends State<MyApp> {
     final file = File("${appDocDir.path}/aLIEz.m4a");
     file.writeAsBytesSync(audio);
 
-    AudioInfo info = AudioInfo("file://${file.path}",
-        title: "file", desc: "local file", coverUrl: "assets/aLIEz.jpg");
+    AudioInfo info = AudioInfo("file://${file.path}", desc: "local file", coverUrl: "assets/aLIEz.jpg");
 
     list.add(info.toJson());
     AudioManager.instance.audioList.add(info);
@@ -163,7 +150,7 @@ class _MyAppState extends State<MyApp> {
                 child: ListView.separated(
                     itemBuilder: (context, index) {
                       return ListTile(
-                        title: Text(list[index]["title"],
+                        title: Text(list[index]["url"],
                             style: TextStyle(fontSize: 18)),
                         subtitle: Text(list[index]["desc"]),
                         onTap: () => AudioManager.instance.play(index: index),
@@ -176,7 +163,7 @@ class _MyAppState extends State<MyApp> {
               Center(
                   child: Text(_error != null
                       ? _error
-                      : "${AudioManager.instance.info.title} lrc text: $_position")),
+                      : "lrc text: $_position")),
               bottomPanel()
             ],
           ),
@@ -295,11 +282,8 @@ class _MyAppState extends State<MyApp> {
                     });
                   },
                   onChangeEnd: (value) {
-                    if (_duration != null) {
-                      Duration msec = Duration(
-                          milliseconds:
-                              (_duration.inMilliseconds * value).round());
-                      AudioManager.instance.seekTo(msec);
+                    if (_duration != null)
+                    {
                     }
                   },
                 )),
