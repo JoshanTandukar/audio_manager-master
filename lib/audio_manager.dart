@@ -44,10 +44,6 @@ class AudioManager {
     _info = _audioList[0];
   }
 
-  /// Currently playing subscript of [audioList]
-  int get curIndex => _curIndex;
-  int _curIndex = 0;
-
   /// Whether to auto play. default true
   bool get auto => _auto;
   bool _auto = true;
@@ -104,7 +100,7 @@ class AudioManager {
     if (url == null || url.isEmpty) return "[url] can not be null or empty";
     _info = AudioInfo(url);
     _audioList.insert(0, _info);
-    return await play(index: 0, auto: auto);
+    return await play();
   }
 
   /// This will load the file from the file-URI given by:
@@ -118,13 +114,8 @@ class AudioManager {
     return await start(audio.url,auto: auto);
   }
 
-  Future<String> play({int index, bool auto}) async {
-    if (index != null && (index < 0 || index >= _audioList.length))
-      throw "invalid index";
-    _auto = auto ?? true;
-    _curIndex = index ?? _curIndex;
-    _info = _audioList[_curIndex];
-    _onEvents(AudioManagerEvents.start, _info);
+  Future<String> play() async {
+    _onEvents(AudioManagerEvents.start, _audioList[0]);
 
     final result = await _channel.invokeMethod('start',
     {

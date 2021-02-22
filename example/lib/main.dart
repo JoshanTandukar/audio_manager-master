@@ -16,14 +16,14 @@ class _MyAppState extends State<MyApp> {
   final list = [
     {
       "desc": "assets playback",
-      "url": "assets/xv.mp3",
+      "url": "assets/incoming.wav",
       "coverUrl": "assets/ic_launcher.png"
     },
     {
       "desc": "assets playback",
-      "url": "assets/incoming.wav",
+      "url": "assets/xv.mp3",
       "coverUrl": "assets/ic_launcher.png"
-    },
+    }
   ];
 
   @override
@@ -80,7 +80,7 @@ class _MyAppState extends State<MyApp> {
                       return ListTile(
                         title: Text(list[index]["url"],
                             style: TextStyle(fontSize: 18)),
-                        onTap: () => AudioManager.instance.play(index: index),
+                        onTap: () => AudioManager.instance.play(),
                       );
                     },
                     separatorBuilder: (BuildContext context, int index) =>
