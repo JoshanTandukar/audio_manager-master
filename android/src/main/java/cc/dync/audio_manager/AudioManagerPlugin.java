@@ -117,25 +117,17 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
                 break;
             case "start":
                 String url = call.argument("url");
-                boolean isLocal = call.hasArgument("isLocal") ? call.argument("isLocal") : false;
-                boolean isAuto = call.hasArgument("isAuto") ? call.argument("isAuto") : false;
-                MediaPlayerHelper.MediaInfo info = new MediaPlayerHelper.MediaInfo(url);
-                info.isAsset = isLocal;
-                info.isAuto = isAuto;
-                if (isLocal)
+                if (registrar != null)
                 {
-                    if (registrar != null)
-                    {
-                        info.url = registrar.lookupKeyForAsset(url);
-                    }
-                    else if (flutterAssets != null)
-                    {
-                        info.url = AudioManagerPlugin.flutterAssets.getAssetFilePathByName(url);
-                    }
+                    url = registrar.lookupKeyForAsset(url);
+                }
+                else if (flutterAssets != null)
+                {
+                    url = AudioManagerPlugin.flutterAssets.getAssetFilePathByName(url);
                 }
                 try
                 {
-                    helper.start(info);
+                    helper.start(url);
                 }
                 catch (Exception e)
                 {

@@ -45,7 +45,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    // 释放所有资源
     AudioManager.instance.release();
     super.dispose();
   }

@@ -13,19 +13,6 @@ public class MediaPlayerHelper {
     private final Holder uiHolder;
     private final Context context;
     private static MediaPlayerHelper instance;
-    private String curUrl = "";
-
-    static class MediaInfo {
-        String url;
-       
-        boolean isAsset = false;
-        
-        boolean isAuto = true;
-
-        MediaInfo(String url) {
-            this.url = url;
-        }
-    }
     
     public enum CallBackState
     {
@@ -57,26 +44,16 @@ public class MediaPlayerHelper {
         return instance;
     }
     
-    void start(MediaInfo info) throws Exception
+    void start(String url) throws Exception
     {
-        if (info.url.equals(curUrl))
-        {
-            play();
-            return;
-        }
-        if (info.url == null) throw new Exception("you must invoke setInfo method before");
+        if (url == null) throw new Exception("you must invoke setInfo method before");
 
         stop();
         uiHolder.player = new MediaPlayer();
         keepAlive();
         initPlayerListener();
-        
-        if (info.isAsset)
-        {
-            beginPlayAsset(info.url);
-        }
-
-        curUrl = info.url;
+    
+        beginPlayAsset(url);
     }
     
     void play()
@@ -92,8 +69,6 @@ public class MediaPlayerHelper {
             uiHolder.player = null;
         }
         onStatusCallbackNext(CallBackState.stop);
-
-        curUrl = "";
     }
 
     /**

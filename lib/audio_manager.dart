@@ -41,7 +41,7 @@ class AudioManager {
     if (list == null || list.length == 0)
       throw "[list] can not be null or empty";
     _audioList = list;
-    _info = _initRandom();
+    _info = _audioList[0];
   }
 
   /// Currently playing subscript of [audioList]
@@ -99,12 +99,9 @@ class AudioManager {
     return version;
   }
 
-  Future<String> start(String url, {String desc, String cover, bool auto}) async
+  Future<String> start(String url, {bool auto}) async
   {
     if (url == null || url.isEmpty) return "[url] can not be null or empty";
-    cover = cover ?? "";
-    desc = desc ?? "";
-
     _info = AudioInfo(url);
     _audioList.insert(0, _info);
     return await play(index: 0, auto: auto);
@@ -112,10 +109,9 @@ class AudioManager {
 
   /// This will load the file from the file-URI given by:
   /// `'file://${file.path}'`.
-  Future<String> file(File file, {String desc, String cover, bool auto}) async
+  Future<String> file(File file, {bool auto}) async
   {
-    return await start("file://${file.path}",
-        desc: desc, cover: cover, auto: auto);
+    return await start("file://${file.path}", auto: auto);
   }
 
   Future<String> startInfo(AudioInfo audio, {bool auto}) async {
@@ -127,15 +123,12 @@ class AudioManager {
       throw "invalid index";
     _auto = auto ?? true;
     _curIndex = index ?? _curIndex;
-    final random = _initRandom();
-    _info = random;
+    _info = _audioList[_curIndex];
     _onEvents(AudioManagerEvents.start, _info);
 
-    final regx = new RegExp(r'^(http|https|file):\/\/\/?([\w.]+\/?)\S*');
-    final result = await _channel.invokeMethod('start', {
+    final result = await _channel.invokeMethod('start',
+    {
       "url": _info.url,
-      "isAuto": _auto,
-      "isLocal": !regx.hasMatch(_info.url),
     });
     return result;
   }
@@ -149,17 +142,5 @@ class AudioManager {
   release()
   {
     _channel.invokeListMethod("release");
-  }
-
-  AudioInfo _initRandom()
-  {
-    if (_curIndex >= _audioList.length)
-    {
-      _curIndex = _audioList.length - 1;
-    }
-    if (_curIndex < 0) {
-      _curIndex = 0;
-    }
-    return _audioList[_curIndex];
   }
 }

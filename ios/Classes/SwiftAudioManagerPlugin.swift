@@ -54,13 +54,8 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
                     AudioManager.default.cover = UIImageView(image: UIImage(contentsOfFile: path))
                 }
             }
-            let isLocal = arguments["isLocal"] as? Bool ?? false
-            if isLocal {
-                url = SwiftAudioManagerPlugin.instance.registrar.lookupKey(forAsset: url)
-            }
             let isAuto = arguments["isAuto"] as? Bool ?? true
             AudioManager.default.isAuto = isAuto
-            AudioManager.default.start(url, isLocal: isLocal)
         case "play":
             AudioManager.default.play(url)
             result(AudioManager.default.playing)
