@@ -208,25 +208,6 @@ public class MediaPlayerHelper {
             beginPlayUrl(path);
         }
     }
-    
-    boolean setSpeed(float speed) {
-        if (!canPlay()) return false;
-        //倍速设置，必须在23以上
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                uiHolder.player.setPlaybackParams(uiHolder.player.getPlaybackParams().setSpeed(speed));
-                uiHolder.player.pause();
-                uiHolder.player.start();
-                return true;
-            } catch (Exception e) {
-                Log.e(TAG, "setPlaySpeed: ", e);
-                return false;
-            }
-        } else {
-            Log.v(TAG, "对不起请升级手机系统至Android6.0及以上");
-            return false;
-        }
-    }
 
     void play() {
         if (!canPlay()) return;

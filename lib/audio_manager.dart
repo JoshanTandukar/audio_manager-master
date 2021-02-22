@@ -112,16 +112,6 @@ class AudioManager {
     return Future.value(true);
   }
 
-  String preProcessing()
-  {
-    var errMsg = "";
-    if (_info == null) errMsg = "you must invoke the [start] method first";
-    if (_error != null) errMsg = _error;
-
-    if (errMsg.isNotEmpty) _onEvents(AudioManagerEvents.error, errMsg);
-    return errMsg;
-  }
-
   Events _events;
   bool _initialize;
 
@@ -198,9 +188,8 @@ class AudioManager {
   /// ⚠️ Must be preloaded
   ///
   /// [return] Returns the current playback status
-  Future<bool> playOrPause() async {
-    if (preProcessing().isNotEmpty) return false;
-
+  Future<bool> playOrPause() async
+  {
     if (_initialize == false && _playing == false)
     {
       play(index: _curIndex, auto: true);
@@ -213,15 +202,14 @@ class AudioManager {
   /// to play status
   Future<bool> toPlay() async
   {
-    if (preProcessing().isNotEmpty) return false;
     bool playing = await _channel.invokeMethod("play");
     _setPlaying(playing);
     return playing;
   }
 
   /// to pause status
-  Future<bool> toPause() async {
-    if (preProcessing().isNotEmpty) return false;
+  Future<bool> toPause() async
+  {
     bool playing = await _channel.invokeMethod("pause");
     _setPlaying(playing);
     return playing;
