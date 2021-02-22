@@ -63,7 +63,6 @@ class AudioManager {
         _onEvents(AudioManagerEvents.error, _error);
         break;
       case "ended":
-        play();
         _onEvents(AudioManagerEvents.ended, null);
         break;
       case "stop":

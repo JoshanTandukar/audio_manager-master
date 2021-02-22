@@ -93,7 +93,9 @@ public class MediaPlayerHelper {
      */
     private void initPlayerListener()
     {
-        uiHolder.player.setOnCompletionListener(mp -> {
+        uiHolder.player.setOnCompletionListener(mp ->
+        {
+            play();
             onStatusCallbackNext(CallBackState.ended, mp);
         });
         uiHolder.player.setOnErrorListener((mp, what, extra) -> {
