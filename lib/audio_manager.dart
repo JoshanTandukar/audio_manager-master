@@ -117,7 +117,8 @@ class AudioManager {
     return Future.value(true);
   }
 
-  String _preprocessing() {
+  String _preprocessing()
+  {
     var errMsg = "";
     if (_info == null) errMsg = "you must invoke the [start] method first";
     if (_error != null) errMsg = _error;
@@ -183,12 +184,6 @@ class AudioManager {
     _auto = auto ?? true;
     _curIndex = index ?? _curIndex;
     final random = _initRandom();
-    // Do not replay the same url
-    if (_info.url != random.url) {
-      stop();
-      _isLoading = true;
-      _initialize = true;
-    }
     _info = random;
     _onEvents(AudioManagerEvents.start, _info);
 
@@ -212,7 +207,8 @@ class AudioManager {
   Future<bool> playOrPause() async {
     if (_preprocessing().isNotEmpty) return false;
 
-    if (_initialize == false && _playing == false) {
+    if (_initialize == false && _playing == false)
+    {
       play(index: _curIndex, auto: true);
     }
     bool playing = await _channel.invokeMethod("playOrPause");
@@ -221,7 +217,8 @@ class AudioManager {
   }
 
   /// to play status
-  Future<bool> toPlay() async {
+  Future<bool> toPlay() async
+  {
     if (_preprocessing().isNotEmpty) return false;
     bool playing = await _channel.invokeMethod("play");
     _setPlaying(playing);
@@ -237,13 +234,15 @@ class AudioManager {
   }
 
   /// stop play
-  stop() {
+  stop()
+  {
     _reset();
     _initialize = false;
     _channel.invokeMethod("stop");
   }
 
-  _reset() {
+  _reset()
+  {
     if (_isLoading) return;
     _duration = Duration(milliseconds: 0);
     _position = Duration(milliseconds: 0);
