@@ -11,7 +11,7 @@ import MediaPlayer
 
 open class AudioManager: NSObject {
     public enum Events {
-        case ready(_ duration: Int), stop, playing, pause, ended, next, previous, error(NSError)
+        case ready(), stop, playing, pause, ended, error(NSError)
     }
     
     public static let `default`: AudioManager = {
@@ -37,15 +37,7 @@ open class AudioManager: NSObject {
     open var cover: UIImageView?
     /// 是否自动播放
     open var isAuto: Bool = true
-    
-    /// get total duration  /milisecond
-    open var duration: Int {
-        let duration = queue.currentItem?.duration ?? CMTime.zero
-        if CMTimeGetSeconds(duration).isNaN {
-            return 0
-        }
-        return Int(CMTimeGetSeconds(duration)) * 1000
-    }
+
     /// get current position /milisecond
     open var currentTime: Int {
         guard let currentTime = queue.currentItem?.currentTime() else {
@@ -216,7 +208,6 @@ fileprivate extension AudioManager {
                 }else {
                     self.queue.pause()
                 }
-                self.onEvents?(.ready(self.duration))
             }else {
                 self.playing = false
             }
@@ -228,10 +219,7 @@ fileprivate extension AudioManager {
             let ranges = _playerItem.loadedTimeRanges
             guard let timeRange = ranges.first as? CMTimeRange else { return }
             let start = timeRange.start.seconds
-            let duration = timeRange.duration.seconds
-            let cached = start + duration
-            
-            let total = _playerItem.duration.seconds
+
             self.buffer = cached / total * 100
         }
 
@@ -322,14 +310,6 @@ fileprivate extension AudioManager {
                 return .success
             }
         }
-        remote.previousTrackCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
-            self.onEvents?(.previous)
-            return .success
-        }
-        remote.nextTrackCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
-            self.onEvents?(.next)
-            return .success
-        }
     }
     
     /// 锁屏信息
@@ -337,17 +317,13 @@ fileprivate extension AudioManager {
         guard let _ = url, playing == true else {
             return
         }
-        let duration = Double(CMTimeGetSeconds(queue.currentItem?.duration ?? .zero))
         let currentTime = Double(CMTimeGetSeconds(queue.currentTime()))
-        if duration.isNaN || currentTime.isNaN { return }
-        
         setRemoteInfo()
     }
     func setRemoteInfo() {
         let center = MPNowPlayingInfoCenter.default()
         var infos = [String: Any]()
         infos[MPMediaItemPropertyArtist] = desc
-        infos[MPMediaItemPropertyPlaybackDuration] = Double(duration / 1000)
         infos[MPNowPlayingInfoPropertyElapsedPlaybackTime] = Double(currentTime / 1000)
         let image = cover?.image ?? UIImage()
         if #available(iOS 11.0, *) {

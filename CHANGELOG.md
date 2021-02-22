@@ -14,7 +14,6 @@
 
 - Play audio immediately
 - `setRate` method to fix num conversion double
-- Fix iOS remote Control previous/next error
 - Fix iOS remove lock screen control from notification center
 
 ## 0.5.4+1
@@ -24,7 +23,6 @@
 ## 0.5.4
 
 - fix ios autoplay
-- fix ios remote control of pre/next play event
 
 ## 0.5.3+3
 

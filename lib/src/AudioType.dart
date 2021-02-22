@@ -5,12 +5,7 @@ enum AudioManagerEvents {
 
   /// ready to play. If you want to invoke [seekTo], you must follow this callback
   ready,
-
-  /// [isPlaying] status
-  playstatus,
   error,
-  next,
-  previous,
   ended,
 
   /// Android notification bar click Close
@@ -21,12 +16,6 @@ enum AudioManagerEvents {
 }
 typedef void Events(AudioManagerEvents events, args);
 
-/// Play rate enumeration [0.5, 0.75, 1, 1.5, 1.75, 2]
-enum AudioRate { rate50, rate75, rate100, rate150, rate175, rate200 }
-
-/// play mode
-enum PlayMode { sequence, shuffle, single }
-
 class PlaybackState {
   final AudioState state;
 
@@ -34,15 +23,12 @@ class PlaybackState {
 
   final Duration bufferedSize;
 
-  final AudioRate speed;
-
   final error;
 
   const PlaybackState(
     this.state, {
     this.position,
     this.bufferedSize,
-    this.speed,
     this.error,
   }) : assert(state != null);
 
@@ -51,7 +37,6 @@ class PlaybackState {
           AudioState.none,
           position: const Duration(seconds: 0),
           bufferedSize: const Duration(seconds: 0),
-          speed: AudioRate.rate100,
         );
 }
 

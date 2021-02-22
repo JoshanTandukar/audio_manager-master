@@ -10,35 +10,22 @@ export 'package:audio_manager/src/AudioType.dart';
 class AudioManager {
   static AudioManager _instance;
   static AudioManager get instance => _getInstance();
-  static _getInstance() {
-    if (_instance == null) {
+
+  static _getInstance()
+  {
+    if (_instance == null)
+    {
       _instance = new AudioManager._();
     }
     return _instance;
   }
 
   static MethodChannel _channel;
-  AudioManager._() {
-    _channel = const MethodChannel('audio_manager')
-      ..setMethodCallHandler(_handler);
+
+  AudioManager._()
+  {
+    _channel = const MethodChannel('audio_manager')..setMethodCallHandler(_handler);
   }
-
-  /// Current playback status
-  bool get isPlaying => _playing;
-  bool _playing = false;
-  void _setPlaying(bool playing) {
-    if (_playing == playing) return;
-    _playing = playing;
-    _onEvents(AudioManagerEvents.playstatus, _playing);
-  }
-
-  /// Current playing time (ms
-  Duration get position => _position;
-  Duration _position = Duration(milliseconds: 0);
-
-  /// Total current playing time (ms
-  Duration get duration => _duration;
-  Duration _duration = Duration(milliseconds: 0);
 
   /// If there are errors, return details
   String get error => _error;
@@ -49,7 +36,8 @@ class AudioManager {
   List<AudioInfo> _audioList = [];
 
   /// Set up playlists. Use the [play] or [start] method if you want to play
-  set audioList(List<AudioInfo> list) {
+  set audioList(List<AudioInfo> list)
+  {
     if (list == null || list.length == 0)
       throw "[list] can not be null or empty";
     _audioList = list;
@@ -59,14 +47,6 @@ class AudioManager {
   /// Currently playing subscript of [audioList]
   int get curIndex => _curIndex;
   int _curIndex = 0;
-  List<int> _randoms = [];
-
-  /// Play mode [sequence, shuffle, single], default `sequence`
-  PlayMode get playMode => _playMode;
-  PlayMode _playMode = PlayMode.sequence;
-
-  /// Whether to internally handle [next] and [previous] events. default true
-  bool intercepter = true;
 
   /// Whether to auto play. default true
   bool get auto => _auto;
@@ -77,33 +57,21 @@ class AudioManager {
   AudioInfo _info;
 
   Future<dynamic> _handler(MethodCall call) {
-    switch (call.method) {
+    switch (call.method)
+    {
       case "ready":
-        _duration = Duration(milliseconds: call.arguments ?? 0);
-        _onEvents(AudioManagerEvents.ready, _duration);
-        break;
-      case "playstatus":
-        _setPlaying(call.arguments ?? false);
+        _onEvents(AudioManagerEvents.ready, null);
         break;
       case "error":
         _error = call.arguments;
-        if (_playing) _setPlaying(false);
         _onEvents(AudioManagerEvents.error, _error);
         break;
-      case "next":
-        if (intercepter) next();
-        _onEvents(AudioManagerEvents.next, null);
-        break;
-      case "previous":
-        if (intercepter) previous();
-        _onEvents(AudioManagerEvents.previous, null);
-        break;
       case "ended":
+        play();
         _onEvents(AudioManagerEvents.ended, null);
         break;
       case "stop":
         _onEvents(AudioManagerEvents.stop, null);
-        _reset();
         break;
       default:
         _onEvents(AudioManagerEvents.unknow, call.arguments);
@@ -113,55 +81,47 @@ class AudioManager {
   }
 
   Events _events;
-  bool _initialize;
 
-  /// callback events
-  void onEvents(Events events) {
+  void onEvents(Events events)
+  {
     _events = events;
   }
 
-  void _onEvents(AudioManagerEvents events, args) {
+  void _onEvents(AudioManagerEvents events, args)
+  {
     if (_events == null) return;
     _events(events, args);
   }
 
-  Future<String> get platformVersion async {
+  Future<String> get platformVersion async
+  {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
 
-  /// Initial playback. Preloaded playback information
-  ///
-  /// `url`: Playback address, `network` address or` asset` address.
-  ///
-  /// `title`: Notification play title
-  ///
-  /// `desc`: Notification details; `cover`: cover image address, `network` address, or `asset` address;
-  /// `auto`: Whether to play automatically, default is true;
-  Future<String> start(String url,
-      {String desc, String cover, bool auto}) async {
+  Future<String> start(String url, {String desc, String cover, bool auto}) async
+  {
     if (url == null || url.isEmpty) return "[url] can not be null or empty";
     cover = cover ?? "";
     desc = desc ?? "";
 
-    _info = AudioInfo(url,desc: desc, coverUrl: cover);
+    _info = AudioInfo(url);
     _audioList.insert(0, _info);
     return await play(index: 0, auto: auto);
   }
 
   /// This will load the file from the file-URI given by:
   /// `'file://${file.path}'`.
-  Future<String> file(File file,
-      {String desc, String cover, bool auto}) async {
+  Future<String> file(File file, {String desc, String cover, bool auto}) async
+  {
     return await start("file://${file.path}",
         desc: desc, cover: cover, auto: auto);
   }
 
   Future<String> startInfo(AudioInfo audio, {bool auto}) async {
-    return await start(audio.url, desc: audio.desc, cover: audio.coverUrl, auto: auto);
+    return await start(audio.url,auto: auto);
   }
 
-  /// Play specified subscript audio if you want
   Future<String> play({int index, bool auto}) async {
     if (index != null && (index < 0 || index >= _audioList.length))
       throw "invalid index";
@@ -174,120 +134,32 @@ class AudioManager {
     final regx = new RegExp(r'^(http|https|file):\/\/\/?([\w.]+\/?)\S*');
     final result = await _channel.invokeMethod('start', {
       "url": _info.url,
-      "desc": _info.desc,
-      "cover": _info.coverUrl,
       "isAuto": _auto,
       "isLocal": !regx.hasMatch(_info.url),
-      "isLocalCover": !regx.hasMatch(_info.coverUrl),
     });
     return result;
   }
 
-  /// Play or pause; that is, pause if currently playing, otherwise play
-  ///
-  /// ⚠️ Must be preloaded
-  ///
-  /// [return] Returns the current playback status
-  Future<bool> playOrPause() async
-  {
-    if (_initialize == false && _playing == false)
-    {
-      play(index: _curIndex, auto: true);
-    }
-    bool playing = await _channel.invokeMethod("playOrPause");
-    _setPlaying(playing);
-    return playing;
-  }
-
-  /// to play status
-  Future<bool> toPlay() async
-  {
-    bool playing = await _channel.invokeMethod("play");
-    _setPlaying(playing);
-    return playing;
-  }
-
-  /// to pause status
-  Future<bool> toPause() async
-  {
-    bool playing = await _channel.invokeMethod("pause");
-    _setPlaying(playing);
-    return playing;
-  }
-
-  /// stop play
   stop()
   {
-    _reset();
-    _initialize = false;
     _channel.invokeMethod("stop");
   }
 
-  _reset()
-  {
-    _duration = Duration(milliseconds: 0);
-    _position = Duration(milliseconds: 0);
-    _setPlaying(false);
-  }
-
   /// release all resource
-  release() {
-    _reset();
+  release()
+  {
     _channel.invokeListMethod("release");
   }
 
-  /// Switch playback mode. `Playmode` priority is greater than `index`
-  PlayMode nextMode({PlayMode playMode, int index}) {
-    int mode = index ?? (_playMode.index + 1) % 3;
-    if (playMode != null) mode = playMode.index;
-    switch (mode) {
-      case 0:
-        _playMode = PlayMode.sequence;
-        break;
-      case 1:
-        _playMode = PlayMode.shuffle;
-        break;
-      case 2:
-        _playMode = PlayMode.single;
-        break;
-      default:
-        _playMode = PlayMode.sequence;
-        break;
-    }
-    return _playMode;
-  }
-
-  AudioInfo _initRandom() {
-    if (playMode == PlayMode.shuffle) {
-      if (_randoms.length != _audioList.length) {
-        _randoms = _audioList.asMap().keys.toList();
-        _randoms.shuffle();
-      }
-      _curIndex = _randoms[_curIndex];
-    }
-    if (_curIndex >= _audioList.length) {
+  AudioInfo _initRandom()
+  {
+    if (_curIndex >= _audioList.length)
+    {
       _curIndex = _audioList.length - 1;
     }
     if (_curIndex < 0) {
       _curIndex = 0;
     }
     return _audioList[_curIndex];
-  }
-
-  /// play next audio
-  Future<String> next() async {
-    if (playMode != PlayMode.single) {
-      _curIndex = (_curIndex + 1) % _audioList.length;
-    }
-    return await play();
-  }
-
-  /// play previous audio
-  Future<String> previous() async {
-    if (playMode != PlayMode.single) {
-      num index = _curIndex - 1;
-      _curIndex = index < 0 ? _audioList.length - 1 : index;
-    }
-    return await play();
   }
 }

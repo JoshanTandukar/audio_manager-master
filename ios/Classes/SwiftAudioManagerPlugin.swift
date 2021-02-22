@@ -14,19 +14,11 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
         instance.registrar = registrar
         AudioManager.default.onEvents = { event in
             switch event {
-            case .ready(let duration):
-                channel.invokeMethod("ready", arguments: duration)
-            case .playing, .pause:
-                channel.invokeMethod("playstatus", arguments: AudioManager.default.playing)
             case .error(let e):
                 DispatchQueue.main.async {
                     AudioManager.default.clean()
                 }
                 channel.invokeMethod("error", arguments: e.description)
-            case .next:
-                channel.invokeMethod("next", arguments: nil)
-            case .previous:
-                channel.invokeMethod("previous", arguments: nil)
             case .ended:
                 channel.invokeMethod("ended", arguments: nil)
             case .stop:
@@ -69,13 +61,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
             let isAuto = arguments["isAuto"] as? Bool ?? true
             AudioManager.default.isAuto = isAuto
             AudioManager.default.start(url, isLocal: isLocal)
-        case "playOrPause":
-            if AudioManager.default.playing {
-                AudioManager.default.pause(url)
-            }else {
-                AudioManager.default.play(url)
-            }
-            result(AudioManager.default.playing)
         case "play":
             AudioManager.default.play(url)
             result(AudioManager.default.playing)

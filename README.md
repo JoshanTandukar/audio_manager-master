@@ -47,10 +47,6 @@ AudioManager.instance
 	.then((err) {
 	print(err);
 });
-
-// Play or pause; that is, pause if currently playing, otherwise play
-AudioManager.instance.playOrPause()
-
 // events callback
 AudioManager.instance.onEvents((events, args) {
 	print("$events, $args");

@@ -2,12 +2,7 @@ package cc.dync.audio_manager;
 
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -93,22 +88,12 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
             Log.v(TAG, "--" + status.toString());
             switch (status) {
                 case ready:
-                    channel.invokeMethod("ready", helper.duration());
-                    break;
-                case playOrPause:
-                    if (args.length == 0) return;
-                    channel.invokeMethod("playstatus", args[0]);
+                    channel.invokeMethod("ready", null);
                     break;
                 case error:
                     Log.v(TAG, "Error:" + args[0]);
                     channel.invokeMethod("error", args[0]);
                     helper.stop();
-                    break;
-                case next:
-                    channel.invokeMethod("next", null);
-                    break;
-                case previous:
-                    channel.invokeMethod("previous", null);
                     break;
                 case ended:
                     channel.invokeMethod("ended", null);
@@ -132,14 +117,9 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
                 break;
             case "start":
                 String url = call.argument("url");
-                String desc = call.argument("desc");
-                String cover = call.argument("cover");
-
                 boolean isLocal = call.hasArgument("isLocal") ? call.argument("isLocal") : false;
-                boolean isLocalCover = call.hasArgument("isLocalCover") ? call.argument("isLocalCover") : false;
                 boolean isAuto = call.hasArgument("isAuto") ? call.argument("isAuto") : false;
                 MediaPlayerHelper.MediaInfo info = new MediaPlayerHelper.MediaInfo(url);
-                info.desc = desc;
                 info.isAsset = isLocal;
                 info.isAuto = isAuto;
                 if (isLocal)
@@ -153,19 +133,6 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
                         info.url = AudioManagerPlugin.flutterAssets.getAssetFilePathByName(url);
                     }
                 }
-                info.cover = cover;
-                if (isLocalCover)
-                {
-                    if (registrar != null)
-                    {
-                        info.cover = registrar.lookupKeyForAsset(cover);
-                    }
-                    else if (flutterAssets != null)
-                    {
-                        info.cover = AudioManagerPlugin.flutterAssets.getAssetFilePathByName(cover);
-                    }
-                }
-
                 try
                 {
                     helper.start(info);
@@ -175,17 +142,8 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
                     result.success(e.getMessage());
                 }
                 break;
-            case "playOrPause":
-                helper.playOrPause();
-                result.success(helper.isPlaying());
-                break;
             case "play":
                 helper.play();
-                result.success(helper.isPlaying());
-                break;
-            case "pause":
-                helper.pause();
-                result.success(helper.isPlaying());
                 break;
             case "stop":
                 helper.stop();
