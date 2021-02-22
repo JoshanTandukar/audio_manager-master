@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:audio_manager/audio_manager.dart';
-import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,11 +24,6 @@ class _MyAppState extends State<MyApp> {
       "url": "assets/incoming.wav",
       "coverUrl": "assets/ic_launcher.png"
     },
-    {
-      "desc": "network resouce playback",
-      "url": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.m4a",
-      "coverUrl": "https://homepages.cae.wisc.edu/~ece533/images/airplane.png"
-    }
   ];
 
   @override
@@ -40,7 +32,6 @@ class _MyAppState extends State<MyApp> {
 
     initPlatformState();
     setupAudio();
-    loadFile();
   }
 
   @override
@@ -55,45 +46,6 @@ class _MyAppState extends State<MyApp> {
     list.forEach((item) => _list.add(AudioInfo(item["url"])));
 
     AudioManager.instance.audioList = _list;
-    AudioManager.instance.play(auto: false);
-
-    AudioManager.instance.onEvents((events, args) {
-      print("$events, $args");
-      switch (events) {
-        case AudioManagerEvents.start:
-          print("start load data callback, curIndex is ${AudioManager.instance.curIndex}");
-          break;
-        case AudioManagerEvents.ready:
-          print("ready to play");
-          // if you need to seek times, must after AudioManagerEvents.ready event invoked
-          // AudioManager.instance.seekTo(Duration(seconds: 10));
-          break;
-        case AudioManagerEvents.error:
-          break;
-        case AudioManagerEvents.ended:
-          break;
-        default:
-          break;
-      }
-    });
-  }
-
-  void loadFile() async {
-    // read bundle file to local path
-    final audioFile = await rootBundle.load("assets/aLIEz.m4a");
-    final audio = audioFile.buffer.asUint8List();
-
-    final appDocDir = await getApplicationDocumentsDirectory();
-    print(appDocDir);
-
-    final file = File("${appDocDir.path}/aLIEz.m4a");
-    file.writeAsBytesSync(audio);
-
-    AudioInfo info = AudioInfo("file://${file.path}");
-
-    list.add(info.toJson());
-    AudioManager.instance.audioList.add(info);
-    setState(() {});
   }
 
   Future<void> initPlatformState() async {

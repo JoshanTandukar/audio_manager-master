@@ -50,7 +50,6 @@ public class MediaPlayerHelper {
 
         stop();
         uiHolder.player = new MediaPlayer();
-        keepAlive();
         initPlayerListener();
     
         beginPlayAsset(url);
@@ -137,11 +136,6 @@ public class MediaPlayerHelper {
         }
     }
     
-    private void keepAlive()
-    {
-        uiHolder.player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
-    }
-
     private static final class Holder
     {
         private MediaPlayer player;
