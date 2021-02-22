@@ -23,10 +23,6 @@ class AudioManager {
       ..setMethodCallHandler(_handler);
   }
 
-  /// 是否资源加载中
-  bool get isLoading => _isLoading;
-  bool _isLoading = true;
-
   /// Current playback status
   bool get isPlaying => _playing;
   bool _playing = false;
@@ -83,7 +79,6 @@ class AudioManager {
   Future<dynamic> _handler(MethodCall call) {
     switch (call.method) {
       case "ready":
-        _isLoading = false;
         _duration = Duration(milliseconds: call.arguments ?? 0);
         _onEvents(AudioManagerEvents.ready, _duration);
         break;
@@ -117,12 +112,11 @@ class AudioManager {
     return Future.value(true);
   }
 
-  String _preprocessing()
+  String preProcessing()
   {
     var errMsg = "";
     if (_info == null) errMsg = "you must invoke the [start] method first";
     if (_error != null) errMsg = _error;
-    if (_isLoading) errMsg = "audio resource loading....";
 
     if (errMsg.isNotEmpty) _onEvents(AudioManagerEvents.error, errMsg);
     return errMsg;
@@ -205,7 +199,7 @@ class AudioManager {
   ///
   /// [return] Returns the current playback status
   Future<bool> playOrPause() async {
-    if (_preprocessing().isNotEmpty) return false;
+    if (preProcessing().isNotEmpty) return false;
 
     if (_initialize == false && _playing == false)
     {
@@ -219,7 +213,7 @@ class AudioManager {
   /// to play status
   Future<bool> toPlay() async
   {
-    if (_preprocessing().isNotEmpty) return false;
+    if (preProcessing().isNotEmpty) return false;
     bool playing = await _channel.invokeMethod("play");
     _setPlaying(playing);
     return playing;
@@ -227,7 +221,7 @@ class AudioManager {
 
   /// to pause status
   Future<bool> toPause() async {
-    if (_preprocessing().isNotEmpty) return false;
+    if (preProcessing().isNotEmpty) return false;
     bool playing = await _channel.invokeMethod("pause");
     _setPlaying(playing);
     return playing;
@@ -243,7 +237,6 @@ class AudioManager {
 
   _reset()
   {
-    if (_isLoading) return;
     _duration = Duration(milliseconds: 0);
     _position = Duration(milliseconds: 0);
     _setPlaying(false);
