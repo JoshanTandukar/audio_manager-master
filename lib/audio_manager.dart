@@ -130,7 +130,8 @@ class AudioManager {
 
   loop(bool loop)
   {
-    _channel.invokeMethod("loop", loop);
+    final args = {'loop': loop};
+    _channel.invokeMethod("loop", args);
   }
 
   /// release all resource
