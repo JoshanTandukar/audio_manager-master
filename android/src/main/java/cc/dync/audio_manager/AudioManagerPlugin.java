@@ -137,6 +137,10 @@ public class AudioManagerPlugin implements FlutterPlugin, MethodCallHandler{
             case "play":
                 helper.play();
                 break;
+            case "loop":
+                boolean loop = call.argument("loop")!=null?call.argument("loop"):true;
+                if(loop)
+                helper.loop(loop);
             case "stop":
                 helper.stop();
             case "release":

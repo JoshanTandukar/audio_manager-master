@@ -18,8 +18,8 @@ public class MediaPlayerHelper {
         stop("stop"),
         ended("Ended"),
         error("Error"),
-        INFO("播放开始"),
-        ready("准备完毕");
+        INFO("Play start"),
+        ready("Ready");
 
         private final String state;
 
@@ -57,6 +57,11 @@ public class MediaPlayerHelper {
     void play()
     {
         uiHolder.player.start();
+    }
+    
+    void loop(boolean loop)
+    {
+        uiHolder.player.setLooping(loop);
     }
     
     public void stop()
