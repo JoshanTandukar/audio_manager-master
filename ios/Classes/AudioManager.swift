@@ -11,13 +11,13 @@ import MediaPlayer
 
 open class AudioManager: NSObject {
     public enum Events {
-        case ready(), stop, playing, pause, ended, error(NSError)
+        case ready, stop, playing, pause, ended, error(NSError)
     }
-    
+
     public static let `default`: AudioManager = {
         return AudioManager()
     }()
-    
+
     private override init() {
         super.init()
         setRemoteControl()
@@ -43,7 +43,7 @@ open class AudioManager: NSObject {
         guard let currentTime = queue.currentItem?.currentTime() else {
             return 0
         }
-        
+
         if CMTimeGetSeconds(currentTime).isNaN || CMTimeGetSeconds(currentTime).isInfinite{
             return 0
         }else{
@@ -57,7 +57,7 @@ open class AudioManager: NSObject {
     fileprivate var observeLoaded: NSKeyValueObservation?
     fileprivate var observeBufferEmpty: NSKeyValueObservation?
     fileprivate var observeCanPlay: NSKeyValueObservation?
-    
+
     fileprivate let session = AVAudioSession.sharedInstance()
     fileprivate var interrupterStatus = false
 }
@@ -90,7 +90,7 @@ public extension AudioManager {
         }else {
             play(link)
         }
-        
+
         observingProps()
         observingTimeChanges()
         setRemoteInfo()
@@ -98,7 +98,7 @@ public extension AudioManager {
         UIApplication.shared.beginReceivingRemoteControlEvents()
         NotificationCenter.default.addObserver(self, selector: #selector(playerFinishPlaying(_:)), name: .AVPlayerItemDidPlayToEndTime, object: queue.currentItem)
     }
-    
+
     /// 播放▶️音乐🎵
     func play(_ link: String? = nil) {
         if playing { return }
@@ -110,7 +110,7 @@ public extension AudioManager {
         playing = true
         onEvents?(.playing)
     }
-    
+
     /// 暂停⏸音乐🎵
     func pause(_ link: String? = nil) {
         if !playing { return }
@@ -122,7 +122,7 @@ public extension AudioManager {
         playing = false
         onEvents?(.pause)
     }
-    
+
     /// 停止⏹音乐🎵
     func stop(_ link: String? = nil) {
         if let observer = timeObserver {
@@ -132,14 +132,14 @@ public extension AudioManager {
         }
         let playerItem = _playingMusic[link ?? url ?? ""] as? AVPlayerItem
         if let playerItem = playerItem {
-            seek(to: 0, link: link ?? url ?? "")
+//            seek(to: 0, link: link ?? url ?? "")
             queue.remove(playerItem)
             _playingMusic.removeValue(forKey: link ?? url ?? "")
         }
         playing = false
         onEvents?(.stop)
     }
-    
+
     /// 清除所有播放信息
     func clean() {
         stop()
@@ -151,7 +151,7 @@ public extension AudioManager {
 private enum AudioError {
     case notReady
     case custom(Int, String)
-    
+
     var description: (Int, String) {
         switch self {
         case .notReady:
@@ -172,11 +172,11 @@ fileprivate extension AudioManager {
         guard let urlPath = string.components(separatedBy: "?").first else {
             return nil
         }
-        
+
         if urlPath.contains("file:") {
             return URLComponents(url: URL(fileURLWithPath: urlPath), resolvingAgainstBaseURL: false)
         }
-        
+
         var components = URLComponents(string: urlPath)
         if let queryString = string.components(separatedBy: "?").last {
             components?.queryItems = []
@@ -212,7 +212,7 @@ fileprivate extension AudioManager {
                 self.playing = false
             }
         }
-        
+
         observeLoaded = queue.currentItem?.observe(\.loadedTimeRanges) {
             [weak self] _playerItem, change in
             guard let `self` = self else { return }
@@ -220,7 +220,7 @@ fileprivate extension AudioManager {
             guard let timeRange = ranges.first as? CMTimeRange else { return }
             let start = timeRange.start.seconds
 
-            self.buffer = cached / total * 100
+//            self.buffer = cached / total * 100
         }
 
         observeCanPlay = queue.currentItem?.observe(\.isPlaybackLikelyToKeepUp) {
@@ -256,10 +256,10 @@ public extension AudioManager {
                 try session.setCategory(.playback, options: [.allowAirPlay, .allowBluetoothA2DP, .mixWithOthers])
             }
             try session.overrideOutputAudioPort(.speaker)
-            
+
         }catch{}
     }
-    
+
     /// 中断结束后继续播放
     /// register in application applicationDidBecomeActive
     func interrupterAction(_ isplay: Bool = false) {
@@ -286,7 +286,7 @@ fileprivate extension AudioManager {
         }
         remote.previousTrackCommand.removeTarget(self)
         remote.nextTrackCommand.removeTarget(self)
-        
+
         remote.playCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
             self.play()
             return .success
@@ -306,7 +306,7 @@ fileprivate extension AudioManager {
         if #available(iOS 9.1, *) {
             remote.changePlaybackPositionCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
                 let playback = event as! MPChangePlaybackPositionCommandEvent
-                self.seek(to: playback.positionTime)
+//                self.seek(to: playback.positionTime)
                 return .success
             }
         }

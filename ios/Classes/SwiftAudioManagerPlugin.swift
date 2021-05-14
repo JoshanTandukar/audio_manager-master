@@ -19,14 +19,23 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
                     AudioManager.default.clean()
                 }
                 channel.invokeMethod("error", arguments: e.description)
+                break
             case .ended:
                 channel.invokeMethod("ended", arguments: nil)
+                break
             case .stop:
                 channel.invokeMethod("stop", arguments: nil)
-        }
+                break
+            case .ready:
+                break
+            case .playing:
+                break
+            case .pause:
+                break
+            }
     }
-    
-    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+
+     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? Dictionary<String,Any> ?? [:]
         let url = arguments["url"] as? String
         print("arguments: ", arguments)
@@ -50,8 +59,8 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
                             result(error.description)
                         }
                     }
-                }else if let path = self.getLocal(SwiftAudioManagerPlugin.instance.registrar, path: cover) {
-                    AudioManager.default.cover = UIImageView(image: UIImage(contentsOfFile: path))
+//                }else if let path = self.getLocal(SwiftAudioManagerPlugin.instance.registrar, path: cover) {
+//                    AudioManager.default.cover = UIImageView(image: UIImage(contentsOfFile: path))
                 }
             }
             let isAuto = arguments["isAuto"] as? Bool ?? true
@@ -70,24 +79,24 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
     func getLocal(_ registrar: FlutterPluginRegistrar, path: String) -> String? {
         let key = registrar.lookupKey(forAsset: path)
         return Bundle.main.path(forResource: key, ofType: nil)
     }
-    
-    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
+
+     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
         AudioManager.default.registerBackground()
         return true
     }
-    
+
 //    public func applicationWillResignActive(_ application: UIApplication) {
 //        backTaskId = backgroundPlayerID(backTaskId)
 //    }
-    
-    private var backTaskId: UIBackgroundTaskIdentifier = .invalid
+
+         var _: UIBackgroundTaskIdentifier = .invalid
     /// 设置后台任务ID
-    private func backgroundPlayerID(_ backTaskId: UIBackgroundTaskIdentifier) -> UIBackgroundTaskIdentifier {
+     func backgroundPlayerID(_ backTaskId: UIBackgroundTaskIdentifier) -> UIBackgroundTaskIdentifier {
         var taskId = UIBackgroundTaskIdentifier.invalid;
         taskId = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
         if taskId != .invalid && backTaskId != .invalid {
@@ -95,4 +104,6 @@ public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
         }
         return taskId
     }
+}
+
 }
