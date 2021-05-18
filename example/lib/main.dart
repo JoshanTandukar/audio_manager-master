@@ -112,6 +112,21 @@ class _MyAppState extends State<MyApp> {
           ],
         ),
       ),
+      Container(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+                icon: Icon(
+                  Icons.loop,
+                  color: Colors.black,
+                ),
+                onPressed: () => AudioManager.instance.loop(false)
+            ),
+          ],
+        ),
+      ),
     ]);
   }
 }

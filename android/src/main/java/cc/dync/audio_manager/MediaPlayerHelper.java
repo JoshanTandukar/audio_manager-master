@@ -3,6 +3,7 @@ package cc.dync.audio_manager;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 
@@ -61,6 +62,7 @@ public class MediaPlayerHelper {
     
     void loop(boolean loop)
     {
+        Log.d(TAG, "loop: "+String.valueOf(loop));
         uiHolder.player.setLooping(loop);
     }
     
@@ -147,8 +149,7 @@ public class MediaPlayerHelper {
         private MediaPlayer player;
         private AssetFileDescriptor assetDescriptor;
     }
-
-
+    
     private OnStatusCallbackListener onStatusCallbackListener;
 
     public interface OnStatusCallbackListener
