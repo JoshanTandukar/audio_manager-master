@@ -62,7 +62,6 @@ public class MediaPlayerHelper {
     
     void loop(boolean loop)
     {
-        Log.d(TAG, "loop: "+String.valueOf(loop));
         uiHolder.player.setLooping(loop);
     }
     
