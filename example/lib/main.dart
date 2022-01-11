@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:flutter/services.dart';
+
 import 'package:audio_manager/audio_manager.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,7 +12,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  String _platformVersion = 'test';
 
   final list = [
     {
@@ -40,8 +41,7 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  void setupAudio()
-  {
+  void setupAudio() {
     List<AudioInfo> _list = [];
     list.forEach((item) => _list.add(AudioInfo(item["url"])));
 
@@ -75,8 +75,7 @@ class _MyAppState extends State<MyApp> {
               Text('Running on: $_platformVersion\n'),
               Expanded(
                 child: ListView.separated(
-                    itemBuilder: (context, index)
-                    {
+                    itemBuilder: (context, index) {
                       return ListTile(
                         title: Text(list[index]["url"],
                             style: TextStyle(fontSize: 18)),
@@ -95,8 +94,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget bottomPanel()
-  {
+  Widget bottomPanel() {
     return Column(children: <Widget>[
       Container(
         padding: EdgeInsets.symmetric(vertical: 16),
@@ -122,8 +120,7 @@ class _MyAppState extends State<MyApp> {
                   Icons.loop,
                   color: Colors.black,
                 ),
-                onPressed: () => AudioManager.instance.loop(false)
-            ),
+                onPressed: () => AudioManager.instance.loop(false)),
           ],
         ),
       ),
